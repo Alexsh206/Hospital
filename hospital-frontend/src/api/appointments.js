@@ -1,4 +1,7 @@
-import { api } from './http';
-export const fetchAppointments = () => api.get('/api/appointments');
-export const createAppointment = data => api.post('/api/appointments', data);
-// …
+import { http } from './http';
+
+export const getAppointments    = () => http.get('/appointments');
+export const getAppointmentById = id => http.get(`/appointments/${id}`);
+export const addAppointment     = a  => http.post('/appointments', a);
+export const updateAppointment  = a  => http.put('/appointments', a);
+export const deleteAppointment  = id => http.delete('/appointments', { params: { id } });
