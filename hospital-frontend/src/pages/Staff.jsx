@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useApi } from '../api/api'
+import { getStaff } from '../api/staff'
 
 export default function StaffPage() {
-    const API = useApi()
-    const [doctors, setStaff] = useState([])
+
+    const [staff, setStaff] = useState([])
 
     useEffect(() => {
-        API.get('/doctors')
+        getStaff()
             .then(res => setStaff(res.data))
             .catch(console.error)
     }, [])
 
     return (
-        <div>
-            <h2>Staff</h2>
+        <div style={{ padding: 20 }}>
+            <h2>Персонал</h2>
             <ul>
-                {staffpage.map(d => <li key={d.id}>{d.name} – {s.specialty}</li>)}
+                {staff.map(s => (
+                    <li key={s.id}>
+                        {s.lastName} {s.firstName} — {s.position}
+                    </li>
+                ))}
             </ul>
         </div>
     )

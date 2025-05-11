@@ -60,14 +60,13 @@ public class PatientServlet extends HttpServlet {
         }
     }
 
-    // Универсальный метод для записи любого объекта в JSON
     private void writeJson(HttpServletResponse resp, Object data) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         mapper.writeValue(resp.getWriter(), data);
     }
 
-    // Универсальный метод для чтения JSON из тела запроса
+
     private <T> T parseJson(HttpServletRequest req, Class<T> clazz) throws IOException {
         return mapper.readValue(req.getInputStream(), clazz);
     }

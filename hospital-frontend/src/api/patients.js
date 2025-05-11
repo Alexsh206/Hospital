@@ -1,13 +1,11 @@
 import { http } from './http';
 export const getPatients   = () => http.get('/patients');
 export const createPatient = data => http.post('/patients', data);
-// src/api/patients.js
-
 
 
 
 export function getPatient(id) {
-    return http.get(`/patients/${id}`);
+    return http.get(`/patients/${id}`)
 }
 
 
@@ -25,3 +23,6 @@ export function deletePatient(id) {
     return http.delete(`/patients/${id}`);
 }
 
+export function loginByPhoneAndPassword(phone, password) {
+    return http.post('/auth/login', { phone, password })
+}
