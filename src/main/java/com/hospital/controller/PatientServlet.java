@@ -12,21 +12,32 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/patients")
+@WebServlet(urlPatterns = {"/patients", "/patients/*"})
 public class PatientServlet extends HttpServlet {
 
     private final PatientDAO patientDAO = new PatientDAO();
 
-    // Настраиваем ObjectMapper с поддержкой JavaTimeModule
+
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        List<Patient> patients = patientDAO.getAllPatients();
-        writeJson(resp, patients);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String pathInfo = req.getPathInfo(); // те, що після /patients
+        if (pathInfo != null && pathInfo.length() > 1) {
+            // /patients/{id}
+            int id = Integer.parseInt(pathInfo.substring(1));
+            Patient p = patientDAO.getPatientById(id);
+            if (p != null) {
+                writeJson(resp, p);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } else {
+            // /patients
+            List<Patient> patients = patientDAO.getAllPatients();
+            writeJson(resp, patients);
+        }
     }
 
     @Override
