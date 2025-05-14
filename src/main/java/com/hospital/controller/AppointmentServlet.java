@@ -1,72 +1,118 @@
 package com.hospital.controller;
 
-import com.google.gson.Gson;
 import com.hospital.dao.AppointmentDAO;
 import com.hospital.model.Appointment;
-
-import jakarta.servlet.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
 
-@WebServlet("/appointments")
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet("/api/appointments/*")
 public class AppointmentServlet extends HttpServlet {
 
-    private final AppointmentDAO appointmentDAO = new AppointmentDAO();
-    private final Gson gson = new Gson();
+    private final AppointmentDAO dao = new AppointmentDAO();
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public void init() throws ServletException {
+        // Подключаем поддержку java.time (LocalDate) и выводим их как ISO‐строки
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Appointment> list = appointmentDAO.getAllAppointments();
-        writeJson(resp, list);
+        resp.setContentType("application/json;charset=UTF-8");
+
+        String path = req.getPathInfo(); // может быть null, "/", или "/{id}"
+        if (path == null || "/".equals(path)) {
+            // GET /api/appointments
+            List<Appointment> list = dao.getAllAppointments();
+            mapper.writeValue(resp.getOutputStream(), list);
+        } else {
+            // GET /api/appointments/{id}
+            try {
+                int id = Integer.parseInt(path.substring(1));
+                Appointment a = dao.getAppointmentById(id);
+                if (a == null) {
+                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    mapper.writeValue(resp.getOutputStream(), Map.of("error", "Призначення не знайдено"));
+                } else {
+                    mapper.writeValue(resp.getOutputStream(), a);
+                }
+            } catch (NumberFormatException ex) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                mapper.writeValue(resp.getOutputStream(), Map.of("error", "Невірний формат ID"));
+            }
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Appointment a = parseJson(req, Appointment.class);
-        appointmentDAO.addAppointment(a);
-        writeJson(resp, "Призначення додано!");
+        // POST /api/appointments
+        resp.setContentType("application/json;charset=UTF-8");
+        try {
+            Appointment a = mapper.readValue(req.getInputStream(), Appointment.class);
+            dao.addAppointment(a);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            mapper.writeValue(resp.getOutputStream(), Map.of("message", "Призначення створено"));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Не вдалося створити призначення", "details", e.getMessage()));
+        }
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Appointment a = parseJson(req, Appointment.class);
-        appointmentDAO.updateAppointment(a);
-        writeJson(resp, "Призначення оновлено!");
+        // PUT /api/appointments/{id}
+        resp.setContentType("application/json;charset=UTF-8");
+        String path = req.getPathInfo();
+        if (path == null || !path.matches("/\\d+")) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Потрібно вказати ID в URL"));
+            return;
+        }
+        try {
+            int id = Integer.parseInt(path.substring(1));
+            Appointment a = mapper.readValue(req.getInputStream(), Appointment.class);
+            a.setId(id);
+            dao.updateAppointment(a);
+            mapper.writeValue(resp.getOutputStream(), Map.of("message", "Призначення оновлено"));
+        } catch (NumberFormatException ex) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Невірний формат ID"));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Не вдалося оновити", "details", e.getMessage()));
+        }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String idParam = req.getParameter("id");
-        if (idParam != null) {
-            int id = Integer.parseInt(idParam);
-            appointmentDAO.deleteAppointment(id);
-            writeJson(resp, "Призначення видалено!");
-        } else {
+        // DELETE /api/appointments/{id}
+        resp.setContentType("application/json;charset=UTF-8");
+        String path = req.getPathInfo();
+        if (path == null || !path.matches("/\\d+")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            writeJson(resp, "Потрібно вказати ID");
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Потрібно вказати ID в URL"));
+            return;
         }
-    }
-
-    private void writeJson(HttpServletResponse resp, Object data) throws IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter out = resp.getWriter();
-        out.print(gson.toJson(data));
-        out.flush();
-    }
-
-    private <T> T parseJson(HttpServletRequest req, Class<T> clazz) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = req.getReader()) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
+        try {
+            int id = Integer.parseInt(path.substring(1));
+            dao.deleteAppointment(id);
+            mapper.writeValue(resp.getOutputStream(), Map.of("message", "Призначення видалено"));
+        } catch (NumberFormatException ex) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Невірний формат ID"));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(resp.getOutputStream(), Map.of("error", "Не вдалося видалити", "details", e.getMessage()));
         }
-        return gson.fromJson(sb.toString(), clazz);
     }
 }

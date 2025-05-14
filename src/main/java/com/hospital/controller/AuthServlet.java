@@ -52,6 +52,7 @@ public class AuthServlet extends HttpServlet {
         if (s != null) {
             Map<String,Object> out = new HashMap<>();
             out.put("role", "staff");
+            out.put("position", s.getPosition());
             out.put("id", s.getId());
             out.put("name", s.getFirstName() + " " + s.getLastName());
             resp.setStatus(HttpServletResponse.SC_OK);

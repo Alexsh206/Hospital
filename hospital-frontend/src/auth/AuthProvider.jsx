@@ -1,45 +1,42 @@
 import React, { createContext, useContext, useState } from 'react';
-import { loginByPhoneAndPassword as loginPatient } from '../api/patients'
-import { loginByPhoneAndPassword as loginStaff } from '../api/staff'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import { http } from '../api/http'; // axios.create({ baseURL: '/api', ... })
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
-export function AuthProvider({children}) {
-    const [user, setUser] = useState(null)
-    const nav = useNavigate()
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(() => {
+        const stored = localStorage.getItem('user');
+        return stored ? JSON.parse(stored) : null;
+    });
+    const navigate = useNavigate();
 
     const login = async ({ phone, password }) => {
-        // сначала пробуем залогинить как пациент
-        let resp = await loginPatient(phone, password).catch(() => null)
-        let role = 'patient'
+        try {
+            const resp = await http.post('/auth/login', { phone, password });
+            const { role, id, name, position } = resp.data;
+            const u = { role, id, name, position };
+            setUser(u);
+            localStorage.setItem('user', JSON.stringify(u));
 
-        if (!resp || resp.status !== 200) {
-            // пробуем персонал
-            resp = await loginStaff(phone, password).catch(() => null)
-            role = 'staff'
-        }
-
-        if (resp && resp.status === 200) {
-            const body = resp.data
-            setUser({ role: body.role, id: body.id, name: body.name })
-            // после установки user — делаем redirect
-            if (body.role === 'patient') {
-                nav(`/dashboard/patient/${body.id}`, { replace: true })
+            // редіректимо лише тут
+            if (role === 'patient') {
+                navigate(`/dashboard/patient/${id}`, { replace: true });
             } else {
-                nav(`/dashboard/staff/${body.id}`, { replace: true })
+                navigate(`/dashboard/staff/${id}`, { replace: true });
             }
-            return true
-        } else {
-            // не найден ни пациент, ни staff
-            return false
+            return true;
+        } catch (e) {
+            console.error('Login error', e);
+            return false;
         }
-    }
+    };
 
     const logout = () => {
-        setUser(null)
-        nav('/login', { replace: true })
-    }
+        setUser(null);
+        localStorage.removeItem('user');
+        navigate('/login', { replace: true });
+    };
 
     return (
         <AuthContext.Provider value={{
@@ -50,7 +47,7 @@ export function AuthProvider({children}) {
         }}>
             {children}
         </AuthContext.Provider>
-    )
+    );
 }
 
-export const useAuth = () => useContext(AuthContext)
+export const useAuth = () => useContext(AuthContext);

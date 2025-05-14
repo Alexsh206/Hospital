@@ -12,7 +12,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/patients", "/patients/*"})
+@WebServlet(urlPatterns = {"/api/patients", "/api/patients/*"})
 public class PatientServlet extends HttpServlet {
 
     private final PatientDAO patientDAO = new PatientDAO();

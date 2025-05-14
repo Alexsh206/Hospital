@@ -18,17 +18,18 @@ export default function App() {
         <>
             <nav>
                 {user?.role === 'staff' && <>
-                    <Link to="/patients">Паціенты</Link>
-                    <Link to="/patients/add">Добавить пациента</Link>
+                    <Link to={`/dashboard/staff/${user.id}`}>Моя сторінка</Link>
+                    <Link to="/patients">Список пацієнтів</Link>
+                    <Link to="/patients/add">Додати пацієнта</Link>
                     <Link to="/staff">Персонал</Link>
-                    <Link to="/staff/add">Добавить врача</Link>
-                    <Link to="/appointments">Назначения</Link>
-                    <Link to="/appointments/add">Новое назначение</Link>
+                    <Link to="/staff/add">Додати працівника</Link>
+                    <Link to="/appointments">Призначення</Link>
+                    <Link to="/appointments/add">Нове призначення</Link>
                 </>}
                 {user?.role === 'patient' && <>
-                    <Link to={`/dashboard/patient/${user.id}`}>Моя карточка</Link>
+                    <Link to={`/dashboard/patient/${user.id}`}>Моя медична картка</Link>
                 </>}
-                <Link to="/login">Выход</Link>
+                <Link to="/login">Вийти з акаунту</Link>
             </nav>
 
             <Routes>
@@ -47,6 +48,9 @@ export default function App() {
                     <Route path="/dashboard/patient/:id" element={<PatientDashboardPage />} />
                 </Route>
 
+                <Route element={<PrivateRoute roles={['staff']} />}>
+                    <Route path="/dashboard/staff/:id" element={<StaffDashboardPage />} />
+                </Route>
 
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>

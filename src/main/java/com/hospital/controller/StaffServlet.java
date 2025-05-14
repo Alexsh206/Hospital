@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet("/staff")
+@WebServlet("/api/staff")
 public class StaffServlet extends HttpServlet {
 
     private final StaffDAO staffDAO = new StaffDAO();
