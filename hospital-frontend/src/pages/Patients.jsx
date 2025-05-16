@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { getPatients} from '../api/patients';
-import {http} from "../api/api.js";
 import {Link} from "react-router-dom";
 import * as api from '../api/patients';
-export const getPatientById   = id => http.get(`/patients/${id}`)
-export const addPatient       = data => http.post('/patients', data)
-export const updatePatient    = data => http.put(`/patients`, data)
-export const deletePatient    = id   => http.delete(`/patients`, { params: { id } })
 
 export default function PatientsPage() {
     const [patients, setPatients] = useState([]);
+
+    const loadPatients = () => {
+        api.getPatients()
+            .then(res => setPatients(res.data))
+            .catch(err => console.error('Не вдалося завантажити пацієнтів', err))
+    }
+
+    useEffect(() => {
+        loadPatients()
+    }, [])
 
     useEffect(() => {
         getPatients()
@@ -19,9 +24,10 @@ export default function PatientsPage() {
 
     const handleDelete = (id) => {
         if (!window.confirm('Ви справді хочете видалити цього пацієнта?')) return
+
         api.deletePatient(id)
-            .then(() => load())
-            .catch(err => alert('Не вдалося видалити: ' + err))
+            .then(() => loadPatients())
+            .catch(err => alert('Не вдалося видалити пацієнта:\n' + err))
     }
 
     return (
@@ -54,29 +60,6 @@ export default function PatientsPage() {
                             {' | '}
                             <button onClick={() => handleDelete(p.id)}>Видалити</button>
                         </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
-    )
-
-    return (
-        <div>
-            <h1>Пацієнти</h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Ід</th><th>Прізвище</th><th>Ім’я</th><th>Телефон</th>
-                </tr>
-                </thead>
-                <tbody>
-                {patients.map(p => (
-                    <tr key={p.id}>
-                        <td>{p.id}</td>
-                        <td>{p.lastName}</td>
-                        <td>{p.firstName}</td>
-                        <td>{p.phone}</td>
                     </tr>
                 ))}
                 </tbody>

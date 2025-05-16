@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getPatient }     from '../api/patients'
+import { getPatientById }     from '../api/patients'
 import { getAppointments }    from '../api/appointments'
 import { useParams }          from 'react-router-dom'
 
@@ -9,7 +9,7 @@ export default function PatientDashboardPage() {
     const [appointments, setAppointments] = useState([])
 
     useEffect(() => {
-        getPatient(id).then(r => setPatient(r.data))
+        getPatientById(id).then(r => setPatient(r.data))
         getAppointments().then(r =>
             setAppointments(r.data.filter(a => a.patientId === Number(id)))
         )
@@ -24,7 +24,7 @@ export default function PatientDashboardPage() {
             <h3>Ваши назначения</h3>
             <ul>
                 {appointments.map(a => (
-                    <li key={a.id /* или a.appointmentId */}>
+                    <li key={a.id}>
                         {a.appointmentDate}: {a.diagnosis} – статус: {a.status}
                     </li>
                 ))}

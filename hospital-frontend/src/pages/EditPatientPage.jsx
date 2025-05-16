@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {useApi} from '../api/api'
+import { getPatientById, updatePatient } from '../api/patients'
 
 export default function EditPatientPage() {
     const { id } = useParams()
-    const api    = useApi()
     const nav    = useNavigate()
-
     const [form, setForm] = useState({
         lastName: '', firstName: '', patronymic: '',
         sex: 'M', dateOfBirth: '', phone: '', password: ''
     })
 
     useEffect(() => {
-        api.getPatientById(id)
+        getPatientById(id)
             .then(res => setForm(res.data))
-            .catch(() => alert('Не вдалося завантажити дані'))
+            .catch(() => alert('Не вдалося завантажити дані пацієнта'))
     }, [id])
 
     const handleChange = e => {
@@ -25,12 +23,9 @@ export default function EditPatientPage() {
 
     const handleSubmit = e => {
         e.preventDefault()
-        api.updatePatient(form)
-            .then(() => {
-                alert('Дані оновлено')
-                nav('/patients')
-            })
-            .catch(() => alert('Помилка при оновленні'))
+        updatePatient(id, form)
+            .then(() => nav('/patients', { replace: true }))
+            .catch(() => alert('Не вдалося оновити дані'))
     }
 
     return (
@@ -45,7 +40,7 @@ export default function EditPatientPage() {
                     <label>Ім’я:</label>
                     <input name="firstName" value={form.firstName} onChange={handleChange} />
                 </div>
-                {/** … інші поля … */}
+
                 <button type="submit">Зберегти</button>
             </form>
         </div>
