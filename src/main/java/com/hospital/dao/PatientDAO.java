@@ -1,7 +1,6 @@
 package com.hospital.dao;
 
 import com.hospital.model.Patient;
-import com.hospital.util.DBConnectionUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -39,24 +38,32 @@ public class PatientDAO {
         return patients;
     }
 
-    public void addPatient(Patient p) {
-        String sql = "INSERT INTO patients (last_name, first_name, patronymic, sex, date_of_birth, phone, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
+    public void addPatient(Patient p) throws SQLException {
+        String sql = """
+        INSERT INTO patients
+          (last_name, first_name, patronymic, sex, date_of_birth, phone, password)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
+        """;
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, p.getLastName());
-            stmt.setString(2, p.getFirstName());
-            stmt.setString(3, p.getPatronymic());
-            stmt.setString(4, p.getSex());
-            stmt.setDate(5, Date.valueOf(p.getDateOfBirth()));
-            stmt.setString(6, p.getPhone());
-            stmt.setString(7, p.getPassword());
-            stmt.executeUpdate();
+            ps.setString(1, p.getLastName());
+            ps.setString(2, p.getFirstName());
+            ps.setString(3, p.getPatronymic());
+            ps.setString(4, p.getSex());
+            ps.setDate  (5, java.sql.Date.valueOf(p.getDateOfBirth()));
+            ps.setString(6, p.getPhone());
+            ps.setString(7, p.getPassword());
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    rs.getInt("id");
+                    return;
+                }
+            }
         }
+        throw new SQLException("Не вдалося створити пацієнта");
     }
 
     public Patient getPatientById(int id) {

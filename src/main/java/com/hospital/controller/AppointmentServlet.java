@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/api/appointments/*")
+@WebServlet({"/api/appointments/", "/api/appointments/*"})
 public class AppointmentServlet extends HttpServlet {
 
     private final AppointmentDAO dao = new AppointmentDAO();

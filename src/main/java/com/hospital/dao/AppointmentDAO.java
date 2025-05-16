@@ -1,18 +1,16 @@
 package com.hospital.dao;
 
 import com.hospital.model.Appointment;
-import com.hospital.util.DBConnectionUtil;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hospital.util.DBConnectionUtil.getConnection;
+
 public class AppointmentDAO {
 
-    /**
-     * Возвращает список всех назначений.
-     */
+
     public List<Appointment> getAllAppointments() {
         List<Appointment> list = new ArrayList<>();
         String sql = """
@@ -30,7 +28,7 @@ public class AppointmentDAO {
             ORDER BY appointment_date
         """;
 
-        try (Connection conn = DBConnectionUtil.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -44,9 +42,7 @@ public class AppointmentDAO {
         return list;
     }
 
-    /**
-     * Возвращает назначение по его ID или null, если не найдено.
-     */
+
     public Appointment getAppointmentById(int id) {
         String sql = """
             SELECT
@@ -62,7 +58,7 @@ public class AppointmentDAO {
             FROM appointments
             WHERE id = ?
         """;
-        try (Connection conn = DBConnectionUtil.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -78,43 +74,41 @@ public class AppointmentDAO {
     }
 
 
-    public void addAppointment(Appointment a) {
+    public void addAppointment(Appointment a) throws SQLException {
         String sql = """
-            INSERT INTO appointments
-              (appointment_date, diagnosis, medication,
-               procedure_name, surgery, status, doctor_id, patient_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO appointment
+          (appointment_date, diagnosis, medication, procedure_name,
+           surgery, status, doctor_id, patient_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         """;
 
-        try (Connection conn = DBConnectionUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setDate(1, Date.valueOf(a.getAppointmentDate()));
+            // 1) встановлюємо параметри
+            ps.setDate(1, java.sql.Date.valueOf(a.getAppointmentDate()));
             ps.setString(2, a.getDiagnosis());
             ps.setString(3, a.getMedication());
             ps.setString(4, a.getProcedureName());
             ps.setString(5, a.getSurgery());
             ps.setString(6, a.getStatus());
-            ps.setInt   (7, a.getDoctorId());
-            ps.setInt   (8, a.getPatientId());
+            ps.setInt(7, a.getDoctorId());
+            ps.setInt(8, a.getPatientId());
 
-            ps.executeUpdate();
-
-            // если нужно получить автоматически сгенерированный ID:
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (keys.next()) {
-                    a.setId(keys.getInt(1));
+            // 2) виконуємо і читаємо повернений id
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int newId = rs.getInt("id");
+                    a.setId(newId);           // зберігаємо його в моделі, якщо треба
+                } else {
+                    throw new SQLException("Не вдалося отримати ID новоствореного призначення");
                 }
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
-    /**
-     * Обновляет существующее назначение по полю id.
-     */
+
     public void updateAppointment(Appointment a) {
         String sql = """
             UPDATE appointments SET
@@ -129,7 +123,7 @@ public class AppointmentDAO {
             WHERE id = ?
         """;
 
-        try (Connection conn = DBConnectionUtil.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setDate(1, Date.valueOf(a.getAppointmentDate()));
@@ -148,12 +142,10 @@ public class AppointmentDAO {
         }
     }
 
-    /**
-     * Удаляет назначение по ID.
-     */
+
     public void deleteAppointment(int id) {
         String sql = "DELETE FROM appointments WHERE id = ?";
-        try (Connection conn = DBConnectionUtil.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
@@ -162,9 +154,7 @@ public class AppointmentDAO {
         }
     }
 
-    /**
-     * Маппит текущую строку ResultSet в объект Appointment.
-     */
+
     private Appointment mapRow(ResultSet rs) throws SQLException {
         Appointment a = new Appointment();
         a.setId(rs.getInt("id"));

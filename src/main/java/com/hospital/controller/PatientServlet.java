@@ -10,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet(urlPatterns = {"/api/patients", "/api/patients/*"})
@@ -44,7 +45,11 @@ public class PatientServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         Patient patient = parseJson(req, Patient.class);
-        patientDAO.addPatient(patient);
+        try {
+            patientDAO.addPatient(patient);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         resp.setStatus(HttpServletResponse.SC_CREATED);
         writeJson(resp, patient);
     }

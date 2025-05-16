@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/auth/login")
+@WebServlet("/api/auth/login")
 public class AuthServlet extends HttpServlet {
     private final PatientDAO patientDao = new PatientDAO();
     private final StaffDAO   staffDao   = new StaffDAO();

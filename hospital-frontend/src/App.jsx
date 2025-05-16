@@ -10,6 +10,7 @@ import PatientDashboardPage from './pages/PatientDashboardPage'
 import StaffDashboardPage   from './pages/StaffDashboardPage'
 import LoginPage         from './pages/LoginPage'
 import { useAuth }       from './auth/AuthProvider'
+import EditPatientPage from "./pages/EditPatientPage.jsx";
 
 export default function App() {
     const { user } = useAuth()
@@ -38,6 +39,7 @@ export default function App() {
                 <Route element={<PrivateRoute roles={['staff']} />}>
                     <Route path="/patients"      element={<PatientsPage />} />
                     <Route path="/patients/add"  element={<AddPatientPage />} />
+                    <Route path="/patients/:id/edit" element={<EditPatientPage />} />
                     <Route path="/staff"         element={<StaffPage />} />
                     <Route path="/staff/add"     element={<AddStaffPage />} />
                     <Route path="/appointments"      element={<AppointmentsPage />} />

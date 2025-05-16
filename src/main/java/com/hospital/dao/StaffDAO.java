@@ -57,32 +57,37 @@ public class StaffDAO {
         }
     }
 
-    public Staff getStaffById(int id) {
-        String sql = "SELECT * FROM staff WHERE id = ?";
-        Staff s = null;
+    public Staff getStaffById(int id) throws SQLException {
+        String sql = """
+            SELECT id,
+                   first_name,
+                   last_name,
+                   patronymic,
+                   position,
+                   phone
+              FROM staff
+             WHERE id = ?
+            """;
 
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                s = new Staff();
-                s.setId(rs.getInt("id"));
-                s.setLastName(rs.getString("last_name"));
-                s.setFirstName(rs.getString("first_name"));
-                s.setPatronymic(rs.getString("patronymic"));
-                s.setPosition(rs.getString("position"));
-                s.setPhone(rs.getString("phone"));
-                s.setPassword(rs.getString("password"));
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Staff s = new Staff();
+                    s.setId(           rs.getInt("id"));
+                    s.setFirstName(    rs.getString("first_name"));
+                    s.setLastName(     rs.getString("last_name"));
+                    s.setPatronymic(   rs.getString("patronymic"));
+                    s.setPosition(    rs.getString("position"));
+                    s.setPhone(        rs.getString("phone"));
+                    return s;
+                } else {
+                    return null;
+                }
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
-        return s;
     }
 
     public void updateStaff(Staff s) {
