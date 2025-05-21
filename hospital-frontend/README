@@ -1,0 +1,4 @@
+cd hospital-frontend
+cp .env
+npm install
+npm run dev
