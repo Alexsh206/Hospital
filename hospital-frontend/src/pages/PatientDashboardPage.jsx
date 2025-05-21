@@ -19,9 +19,9 @@ export default function PatientDashboardPage() {
 
     return (
         <div style={{ padding: 20 }}>
-            <h2>Пациент: {patient.firstName} {patient.lastName}</h2>
-            <p>Дата рождения: {patient.dateOfBirth}</p>
-            <h3>Ваши назначения</h3>
+            <h2>Пацієнт: {patient.firstName} {patient.lastName}</h2>
+            <p>Дата Народження: {patient.dateOfBirth}</p>
+            <h3>Ваші призначення</h3>
             <ul>
                 {appointments.map(a => (
                     <li key={a.id}>

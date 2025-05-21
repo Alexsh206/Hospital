@@ -9,7 +9,7 @@ export default function AddPatientPage() {
         lastName: '',
         firstName: '',
         patronymic: '',
-        sex: 'M',
+        sex: '',
         dateOfBirth: '',
         phone: '',
         password: ''
