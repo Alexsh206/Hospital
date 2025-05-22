@@ -1,53 +1,56 @@
-import React, { createContext, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { http } from '../api/http'; // axios.create({ baseURL: '/api', ... })
+import React, { createContext, useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { loginByPhoneAndPassword as loginPatient } from '../api/patients'
+import { loginByPhoneAndPassword as loginStaff }   from '../api/staff'
 
-const AuthContext = createContext();
+const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(() => {
-        const stored = localStorage.getItem('user');
-        return stored ? JSON.parse(stored) : null;
-    });
-    const navigate = useNavigate();
+    const [user, setUser] = useState(null)
+    const navigate = useNavigate()
 
-    const login = async ({ phone, password }) => {
-        try {
-            const resp = await http.post('/auth/login', { phone, password });
-            const { role, id, name, position } = resp.data;
-            const u = { role, id, name, position };
-            setUser(u);
-            localStorage.setItem('user', JSON.stringify(u));
+    async function login({ phone, password }) {
+        // Пробуем сначала как пациент
+        let resp = await loginPatient(phone, password).catch(() => null)
+        let role = 'patient'
 
-            // редіректимо лише тут
-            if (role === 'patient') {
-                navigate(`/dashboard/patient/${id}`, { replace: true });
-            } else {
-                navigate(`/dashboard/staff/${id}`, { replace: true });
-            }
-            return true;
-        } catch (e) {
-            console.error('Login error', e);
-            return false;
+        if (!resp || resp.status !== 200) {
+            // Если не пациент — как персонал
+            resp = await loginStaff(phone, password).catch(() => null)
+            role = 'staff'
         }
-    };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('user');
-        navigate('/login', { replace: true });
-    };
+        if (resp && resp.status === 200) {
+            const body = resp.data
+            setUser({ id: body.id, name: body.name, role: body.role })
+
+            if (body.role === 'patient') {
+                navigate(`/dashboard/patient/${body.id}`, { replace: true })
+            } else {
+                navigate(`/dashboard/staff/${body.id}`, { replace: true })
+            }
+            return true
+        }
+
+        return false
+    }
+
+    function logout() {
+        setUser(null)
+        navigate('/login', { replace: true })
+    }
 
     return (
-        <AuthContext.Provider value={{
-            user,
-            isAuthenticated: !!user,
-            login,
-            logout
-        }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
             {children}
         </AuthContext.Provider>
-    );
+    )
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+    const ctx = useContext(AuthContext)
+    if (!ctx) {
+        throw new Error('useAuth must be used within an AuthProvider')
+    }
+    return ctx
+}

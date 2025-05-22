@@ -1,17 +1,52 @@
-import { useAuth0 } from '@auth0/auth0-react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
 
 export default function LoginPage() {
-    const { loginWithRedirect, isLoading, error } = useAuth0()
+    const [phone, setPhone] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const auth = useAuth()
+    const nav = useNavigate()
 
-    if (isLoading) return <div>Завантаження…</div>
-    if (error) return <div>Помилка: {error.message}</div>
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setError('')
+        const success = await auth.login({ phone, password })
+        if (!success) {
+            setError('Неправильний телефон або пароль')
+        } else {
+            // После успешного логина редирект уже происходит внутри auth.login
+            // Но на всякий случай можно:
+            nav('/', { replace: true })
+        }
+    }
 
     return (
-        <div>
+        <div style={{ padding: 20 }}>
             <h1>Увійти в систему</h1>
-            <button onClick={() => loginWithRedirect()}>
-                Увійти через Auth0
-            </button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>Телефон:</label><br />
+                    <input
+                        type="text"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                    />
+                </div>
+                <div style={{ marginTop: 10 }}>
+                    <label>Пароль:</label><br />
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                    />
+                </div>
+                <div style={{ marginTop: 10 }}>
+                    <button type="submit">Login</button>
+                </div>
+            </form>
         </div>
     )
 }
