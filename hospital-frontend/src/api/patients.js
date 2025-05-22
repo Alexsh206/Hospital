@@ -12,3 +12,7 @@ export const updatePatient  = (id, data) => http.put(`/patients/${id}`, data)
 
 
 export const deletePatient  = id   => http.delete('/patients', { params: { id } })
+
+export function loginByPhoneAndPassword(phone, password) {
+    return http.post('/auth/login', { phone, password })
+}

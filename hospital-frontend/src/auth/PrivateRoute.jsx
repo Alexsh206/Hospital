@@ -1,20 +1,11 @@
-import { useAuth0 } from '@auth0/auth0-react'
+import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { useAuth } from './AuthProvider.jsx'
 
-export default function PrivateRoute({ roles = [] }) {
-    const { user, isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
-
-    if (isLoading) return <div>Loading…</div>;
-
-    if (!isAuthenticated) {
-        loginWithRedirect();
-        return null;
+export default function PrivateRoute({ roles }) {
+    const { isAuthenticated, user } = useAuth()
+    if (!isAuthenticated || !roles.includes(user.role)) {
+        return <Navigate to="/login" replace />
     }
-
-    const userRoles = user['https://hospital.api/roles'] || [];
-    if (roles.length > 0 && !roles.some(r => userRoles.includes(r))) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return <Outlet />;
+    return <Outlet />
 }

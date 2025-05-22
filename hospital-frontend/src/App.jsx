@@ -21,45 +21,46 @@ export default function App() {
             <nav style={{ padding: 10 }}>
                 {user?.role === 'staff' && (
                     <>
-                        <Link to="/patients">Пацієнти</Link>{' '}
-                        <Link to="/patients/add">Додати пацієнта</Link>{' '}
-                        <Link to="/staff">Персонал</Link>{' '}
-                        <Link to="/staff/add">Додати працівника</Link>{' '}
-                        <Link to="/appointments">Призначення</Link>{' '}
-                        <Link to="/appointments/add">Нове призначення</Link>{' '}
+                        <Link to="/patients">Список пацієнтів</Link>{' | '}
+                        <Link to="/patients/add">Додати пацієнта</Link>{' | '}
+                        <Link to="/staff">Персонал</Link>{' | '}
+                        <Link to="/staff/add">Додати працівника</Link>{' | '}
+                        <Link to="/appointments">Призначення</Link>{' | '}
+                        <Link to="/appointments/add">Нове призначення</Link>
                     </>
                 )}
                 {user?.role === 'patient' && (
                     <Link to={`/dashboard/patient/${user.id}`}>Моя медична картка</Link>
                 )}
                 {isAuthenticated && (
-                    <button onClick={logout} style={{ marginLeft: 20 }}>
-                        Вийти
-                    </button>
+                    <>
+                        {' | '}
+                        <button onClick={logout}>Вийти</button>
+                    </>
                 )}
             </nav>
 
             <Routes>
-                {/* Страница логина */}
+                {/* Вхід у систему */}
                 <Route path="/login" element={<LoginPage />} />
 
-                {/* Защищённые маршруты для staff */}
+                {/* Для персоналу */}
                 <Route element={<PrivateRoute roles={['staff']} />}>
-                    <Route path="/patients"      element={<PatientsPage />} />
-                    <Route path="/patients/add"  element={<AddPatientPage />} />
-                    <Route path="/staff"         element={<StaffPage />} />
-                    <Route path="/staff/add"     element={<AddStaffPage />} />
-                    <Route path="/appointments"      element={<AppointmentsPage />} />
-                    <Route path="/appointments/add"  element={<AddAppointmentPage />} />
+                    <Route path="/patients"         element={<PatientsPage />} />
+                    <Route path="/patients/add"     element={<AddPatientPage />} />
+                    <Route path="/staff"            element={<StaffPage />} />
+                    <Route path="/staff/add"        element={<AddStaffPage />} />
+                    <Route path="/appointments"     element={<AppointmentsPage />} />
+                    <Route path="/appointments/add" element={<AddAppointmentPage />} />
                     <Route path="/dashboard/staff/:id" element={<StaffDashboardPage />} />
                 </Route>
 
-                {/* Защищённые маршруты для patient */}
+                {/* Для пацієнтів */}
                 <Route element={<PrivateRoute roles={['patient']} />}>
                     <Route path="/dashboard/patient/:id" element={<PatientDashboardPage />} />
                 </Route>
 
-                {/* Всё остальное — на логин */}
+                {/* Всі інші маршрути → логін */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </>
