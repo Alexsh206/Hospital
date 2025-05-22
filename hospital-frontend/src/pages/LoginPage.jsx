@@ -1,49 +1,54 @@
-import { useState }   from 'react'
-import { useAuth }    from '../auth/AuthProvider'
+// src/pages/LoginPage.jsx
+
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
 
 export default function LoginPage() {
-    const { login } = useAuth()
-    const [form, setForm] = useState({ phone: '', password: '' })
-    const [error, setError] = useState(null)
+    const [phone, setPhone] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const auth = useAuth()
+    const nav = useNavigate()
 
-    const handle = e => {
-        setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-    }
-
-    const submit = async e => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        const ok = await login(form)
-        if (!ok) {
-            setError('Неправильні телефон або пароль')
+        setError('')
+        const success = await auth.login({ phone, password })
+        if (!success) {
+            setError('Неправильний телефон або пароль')
+        } else {
+            // После успешного логина редирект уже происходит внутри auth.login
+            // Но на всякий случай можно:
+            nav('/', { replace: true })
         }
     }
 
     return (
-        <form onSubmit={submit} style={{ padding: 20 }}>
-            <h2>Увійти в систему</h2>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
-            <div>
-                <label>Телефон:<br/>
+        <div style={{ padding: 20 }}>
+            <h1>Увійти в систему</h1>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>Телефон:</label><br />
                     <input
-                        name="phone"
-                        value={form.phone}
-                        onChange={handle}
-                        required
+                        type="text"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
                     />
-                </label>
-            </div>
-            <div>
-                <label>Пароль:<br/>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                    <label>Пароль:</label><br />
                     <input
                         type="password"
-                        name="password"
-                        value={form.password}
-                        onChange={handle}
-                        required
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
                     />
-                </label>
-            </div>
-            <button type="submit" style={{ marginTop: 10 }}>Login</button>
-        </form>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+        </div>
     )
 }
