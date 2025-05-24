@@ -1,68 +1,126 @@
+// src/App.jsx
 import React from 'react'
-import { Routes, Route, Navigate, Link } from 'react-router-dom'
-import PrivateRoute from './auth/PrivateRoute.jsx'
-import { useAuth }  from './auth/AuthProvider.jsx'
+import {
+    Routes,
+    Route,
+    Navigate
+} from 'react-router-dom'
+import { useAuth } from './auth/AuthProvider'
 
-import LoginPage            from './pages/LoginPage.jsx'
-import PatientsPage         from './pages/Patients.jsx'
-import AddPatientPage       from './pages/AddPatientPage.jsx'
-import StaffPage            from './pages/Staff.jsx'
-import AddStaffPage         from './pages/AddStaffPage.jsx'
-import AppointmentsPage     from './pages/AppointmentsPage.jsx'
-import AddAppointmentPage   from './pages/AddAppointmentPage.jsx'
-import PatientDashboardPage from './pages/PatientDashboardPage.jsx'
-import StaffDashboardPage   from './pages/StaffDashboardPage.jsx'
+import LoginPage            from './pages/LoginPage'
+import PatientDashboardPage from './pages/PatientDashboardPage'
+import StaffDashboardPage   from './pages/StaffDashboardPage'
+import AppointmentsPage     from './pages/AppointmentsPage'
+import AddAppointmentPage   from './pages/AddAppointmentPage'
+import EditAppointmentPage  from './pages/EditAppointmentPage'
+
+function PrivateRoute({ children, staffOnly = false }) {
+    const { user, isAuthenticated } = useAuth()
+
+    // якщо не залогінені — на логін
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />
+    }
+
+    // якщо захищена зона тільки для персоналу
+    if (staffOnly) {
+        const allowed = ['Доктор', 'Медсестра', 'Медбрат']
+        if (!allowed.includes(user.position)) {
+            return (
+                <div style={{ padding: 20, color: 'red' }}>
+                    У вас недостатньо прав для доступу до цієї сторінки
+                </div>
+            )
+        }
+    }
+    // якщо це «пацієнтська» сторінка, але ви — персонал
+    else {
+        if (user.position) {
+            return (
+                <div style={{ padding: 20, color: 'red' }}>
+                    Ця сторінка доступна лише пацієнтам
+                </div>
+            )
+        }
+    }
+
+    return children
+}
+
+// редірект з кореня на свій дашборд
+function HomeRedirect() {
+    const { user, isAuthenticated } = useAuth()
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />
+    }
+
+    // персонал
+    if (user.position) {
+        return <Navigate to={`/dashboard/staff/${user.id}`} replace />
+    }
+
+    // пацієнт
+    return <Navigate to={`/dashboard/patient/${user.id}`} replace />
+}
 
 export default function App() {
-    const { user, isAuthenticated, logout } = useAuth()
-
     return (
-        <>
-            <nav style={{ padding: 10 }}>
-                {user?.role === 'staff' && (
-                    <>
-                        <Link to="/patients">Список пацієнтів</Link>{' | '}
-                        <Link to="/patients/add">Додати пацієнта</Link>{' | '}
-                        <Link to="/staff">Персонал</Link>{' | '}
-                        <Link to="/staff/add">Додати працівника</Link>{' | '}
-                        <Link to="/appointments">Призначення</Link>{' | '}
-                        <Link to="/appointments/add">Нове призначення</Link>
-                    </>
-                )}
-                {user?.role === 'patient' && (
-                    <Link to={`/dashboard/patient/${user.id}`}>Моя медична картка</Link>
-                )}
-                {isAuthenticated && (
-                    <>
-                        {' | '}
-                        <button onClick={logout}>Вийти</button>
-                    </>
-                )}
-            </nav>
+        <Routes>
+            {/* головний редірект */}
+            <Route path="/" element={<HomeRedirect />} />
 
-            <Routes>
-                {/* Вхід у систему */}
-                <Route path="/login" element={<LoginPage />} />
+            {/* сторінка входу */}
+            <Route path="/login" element={<LoginPage />} />
 
-                {/* Для персоналу */}
-                <Route element={<PrivateRoute roles={['staff']} />}>
-                    <Route path="/patients"         element={<PatientsPage />} />
-                    <Route path="/patients/add"     element={<AddPatientPage />} />
-                    <Route path="/staff"            element={<StaffPage />} />
-                    <Route path="/staff/add"        element={<AddStaffPage />} />
-                    <Route path="/appointments"     element={<AppointmentsPage />} />
-                    <Route path="/appointments/add" element={<AddAppointmentPage />} />
-                    <Route path="/dashboard/staff/:id" element={<StaffDashboardPage />} />
-                </Route>
+            {/* дашборд пацієнта */}
+            <Route
+                path="/dashboard/patient/:id"
+                element={
+                    <PrivateRoute>
+                        <PatientDashboardPage />
+                    </PrivateRoute>
+                }
+            />
 
-                {/* Для пацієнтів */}
-                <Route element={<PrivateRoute roles={['patient']} />}>
-                    <Route path="/dashboard/patient/:id" element={<PatientDashboardPage />} />
-                </Route>
+            {/* дашборд персоналу */}
+            <Route
+                path="/dashboard/staff/:id"
+                element={
+                    <PrivateRoute staffOnly>
+                        <StaffDashboardPage />
+                    </PrivateRoute>
+                }
+            />
 
-                {/* Всі інші маршрути → логін */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-        </>
+            {/* призначення (тільки для персоналу) */}
+            <Route
+                path="/appointments"
+                element={
+                    <PrivateRoute staffOnly>
+                        <AppointmentsPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/appointments/add"
+                element={
+                    <PrivateRoute staffOnly>
+                        <AddAppointmentPage />
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/appointments/:id/edit"
+                element={
+                    <PrivateRoute staffOnly>
+                        <EditAppointmentPage />
+                    </PrivateRoute>
+                }
+            />
+
+            {/* усе інше — назад на корінь */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
     )
 }

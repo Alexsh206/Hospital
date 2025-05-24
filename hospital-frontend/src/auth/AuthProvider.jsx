@@ -1,56 +1,48 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, {
+    createContext, useState, useContext
+} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loginByPhoneAndPassword as loginPatient } from '../api/patients'
-import { loginByPhoneAndPassword as loginStaff }   from '../api/staff'
+import * as api from '../api/api'
 
-const AuthContext = createContext(null)
+const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
-    const navigate = useNavigate()
+    const nav = useNavigate()
 
-    async function login({ phone, password }) {
-        // Пробуем сначала как пациент
-        let resp = await loginPatient(phone, password).catch(() => null)
-        let role = 'patient'
+    const login = async ({ phone, password }) => {
+        const resp = await api.login({ phone, password }).catch(() => null)
+        if (resp?.status === 200) {
+            const profile = resp.data
+            localStorage.setItem('token', profile.token)
+            setUser(profile)
 
-        if (!resp || resp.status !== 200) {
-            // Если не пациент — как персонал
-            resp = await loginStaff(phone, password).catch(() => null)
-            role = 'staff'
-        }
-
-        if (resp && resp.status === 200) {
-            const body = resp.data
-            setUser({ id: body.id, name: body.name, role: body.role })
-
-            if (body.role === 'patient') {
-                navigate(`/dashboard/patient/${body.id}`, { replace: true })
+            if (profile.position === 'Доктор') {
+                nav(`/dashboard/staff/${profile.id}`, { replace: true })
+            } else if (profile.role === 'patient') {
+                nav(`/dashboard/patient/${profile.id}`, { replace: true })
             } else {
-                navigate(`/dashboard/staff/${body.id}`, { replace: true })
+                nav(`/dashboard/staff/${profile.id}`, { replace: true })
             }
+
             return true
         }
-
         return false
     }
 
-    function logout() {
+    const logout = () => {
+        localStorage.removeItem('token')
         setUser(null)
-        navigate('/login', { replace: true })
+        nav('/login', { replace: true })
     }
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
+        <AuthContext.Provider
+            value={{ user, isAuthenticated: !!user, login, logout }}
+        >
             {children}
         </AuthContext.Provider>
     )
 }
 
-export function useAuth() {
-    const ctx = useContext(AuthContext)
-    if (!ctx) {
-        throw new Error('useAuth must be used within an AuthProvider')
-    }
-    return ctx
-}
+export const useAuth = () => useContext(AuthContext)

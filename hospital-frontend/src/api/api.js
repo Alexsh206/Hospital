@@ -1,19 +1,66 @@
-import axios from 'axios'
-import { useAuth0 } from '@auth0/auth0-react'
+import { http } from './http'
 
-const API = axios.create({ baseURL: '/hospital-system/' })
+export function login({ phone, password }) {
+    return http.post('/auth/login', { phone, password })
+}
 
-export const http = axios.create({
-    baseURL: '/hospital-system/',
-    headers: { 'Content-Type': 'application/json' },
-});
 
-export const useApi = () => {
-    const { getAccessTokenSilently } = useAuth0()
-    API.interceptors.request.use(async (config) => {
-        const token = await getAccessTokenSilently()
-        config.headers.Authorization = `Bearer ${token}`
-        return config
-    })
-    return API
+export function getAllPatients() {
+    return http.get('/patients')
+}
+
+export function getPatientById(id) {
+    return http.get(`/patients/${id}`)
+}
+
+export function addPatient(data) {
+    return http.post('/patients', data)
+}
+
+export function updatePatient(id, data) {
+    return http.put(`/patients/${id}`, data)
+}
+
+export function deletePatient(id) {
+    return http.delete('/patients', { params: { id } })
+}
+
+export function getAllStaff() {
+    return http.get('/staff')
+}
+
+export function getStaffById(id) {
+    return http.get(`/staff/${id}`)
+}
+
+export function addStaff(data) {
+    return http.post('/staff', data)
+}
+
+export function updateStaff(id, data) {
+    return http.put(`/staff/${id}`, data)
+}
+
+export function deleteStaff(id) {
+    return http.delete('/staff', { params: { id } })
+}
+
+export function getAllAppointments() {
+    return http.get('/appointments')
+}
+
+export function getAppointmentById(id) {
+    return http.get(`/appointments/${id}`)
+}
+
+export function addAppointment(data) {
+    return http.post('/appointments', data)
+}
+
+export function updateAppointment(id, data) {
+    return http.put(`/appointments/${id}`, data)
+}
+
+export function deleteAppointment(id) {
+    return http.delete('/appointments', { params: { id } })
 }

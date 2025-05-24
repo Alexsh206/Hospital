@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { addAppointment }    from '../api/appointments';
-import { getStaff }          from '../api/staff';
-import { getPatients }       from '../api/patients';
-import { useNavigate }       from 'react-router-dom';
-import { useAuth }           from '../auth/AuthProvider';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
+import * as appointmentsApi from '../api/appointments'
+import * as patientsApi     from '../api/patients'
+import * as staffApi        from '../api/staff'
+import { AppointmentStatus } from '../api/appointments.js';
 
 export default function AddAppointmentPage() {
-    const { user } = useAuth();   // { role, position, id, name }
-    const nav     = useNavigate();
+    const { user } = useAuth()           // { id, name, role }
+    const nav = useNavigate()
 
     const [form, setForm] = useState({
         appointmentDate: '',
@@ -15,120 +16,113 @@ export default function AddAppointmentPage() {
         medication: '',
         procedureName: '',
         surgery: '',
-        status: 'PENDING',
+        status: AppointmentStatus.PENDING,
         doctorId: '',
-        patientId: ''
-    });
-    const [doctors, setDoctors]   = useState([]);
-    const [patients, setPatients] = useState([]);
+        patientId: '',
+    })
+
+    const [doctors, setDoctors]   = useState([])
+    const [patients, setPatients] = useState([])
 
     useEffect(() => {
-        getStaff().then(r => setDoctors(r.data));
-        getPatients().then(r => setPatients(r.data));
-    }, []);
+        // Получаем список врачей
+        staffApi.getStaff()
+            .then(res => setDoctors(res.data))
+            .catch(console.error)
 
-    const handle = e => {
-        const { name, value } = e.target;
-        setForm(f => ({ ...f, [name]: value }));
-    };
+        // Получаем список пациентов
+        patientsApi.getPatients()
+            .then(res => setPatients(res.data))
+            .catch(console.error)
+    }, [])
 
-    const submit = async e => {
-        e.preventDefault();
-        await addAppointment({
-            ...form,
-            doctorId:  Number(form.doctorId),
-            patientId: Number(form.patientId),
-        });
-        nav('/appointments');
-    };
+    const handleChange = e => {
+        const { name, value } = e.target
+        setForm(f => ({ ...f, [name]: value }))
+    }
+
+    const handleSubmit = e => {
+        e.preventDefault()
+        appointmentsApi.addAppointment(form)
+            .then(() => nav('/appointments'))
+            .catch(console.error)
+    }
 
     return (
-        <form onSubmit={submit} style={{ padding: 20 }}>
-            <h2>Нове призначення</h2>
-
-            <div>
-                <label>Дата призначення:<br/>
+        <div>
+            <h1>Нове призначення</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Дата призначення:
                     <input
                         type="date"
                         name="appointmentDate"
                         value={form.appointmentDate}
-                        onChange={handle}
-                        required
+                        onChange={handleChange}
                     />
                 </label>
-            </div>
 
-            <div>
-                <label>Діагноз:<br/>
+                <label>
+                    Діагноз:
                     <input
-                        type="text"
                         name="diagnosis"
                         value={form.diagnosis}
-                        onChange={handle}
-                        required
+                        onChange={handleChange}
                     />
                 </label>
-            </div>
 
-            <div>
-                <label>Ліки:<br/>
+                <label>
+                    Ліки:
                     <input
-                        type="text"
                         name="medication"
                         value={form.medication}
-                        onChange={handle}
+                        onChange={handleChange}
                     />
                 </label>
-            </div>
 
-            <div>
-                <label>Процедури:<br/>
-                    <input
-                        type="text"
-                        name="procedureName"
-                        value={form.procedureName}
-                        onChange={handle}
-                    />
-                </label>
-            </div>
-
-            {user.role === 'staff' && user.position === 'Doctor' && (
-                <div>
-                    <label>Операції:<br/>
-                        <input
-                            type="text"
-                            name="surgery"
-                            value={form.surgery}
-                            onChange={handle}
-                        />
-                    </label>
-                </div>
+                {/* Только для роли doctor */}
+                {user.role === 'doctor' && (
+                    <>
+                        <label>
+                            Процедури:
+                            <input
+                                name="procedureName"
+                                value={form.procedureName}
+                                onChange={handleChange}
+                            />
+                        </label>
+                        <label>
+                            Операції:
+                            <input
+                                name="surgery"
+                                value={form.surgery}
+                                onChange={handleChange}
+                            />
+                        </label>
+                    </>
                 )}
 
-            <div>
-                <label>Статус:<br/>
+                <label>
+                    Статус:
                     <select
                         name="status"
                         value={form.status}
-                        onChange={handle}
+                        onChange={handleChange}
                     >
-                        <option value="PENDING">PENDING</option>
-                        <option value="IN_PROGRESS">IN_PROGRESS</option>
-                        <option value="COMPLETED">COMPLETED</option>
-                        <option value="DISCHARGED">DISCHARGED</option>
+                        {Object.values(AppointmentStatus).map(s => (
+                            <option key={s} value={s}>{s}</option>
+                        ))}
                     </select>
                 </label>
-            </div>
 
-            <div>
-                <label>Лікар:<br/>
+                <label>
+                    Лікар:
                     <select
                         name="doctorId"
                         value={form.doctorId}
-                        onChange={handle}
-                        required
+                        onChange={handleChange}
                     >
-                        <option value="">– виберіть лікаря –</option>
+                        <option value="">— виберіть лікаря —</option>
                         {doctors.map(d => (
                             <option key={d.id} value={d.id}>
                                 {d.lastName} {d.firstName} ({d.position})
@@ -136,17 +130,15 @@ export default function AddAppointmentPage() {
                         ))}
                     </select>
                 </label>
-            </div>
 
-            <div>
-                <label>Пацієнт:<br/>
+                <label>
+                    Пацієнт:
                     <select
                         name="patientId"
                         value={form.patientId}
-                        onChange={handle}
-                        required
+                        onChange={handleChange}
                     >
-                        <option value="">– виберіть пацієнта –</option>
+                        <option value="">— виберіть пацієнта —</option>
                         {patients.map(p => (
                             <option key={p.id} value={p.id}>
                                 {p.lastName} {p.firstName}
@@ -154,11 +146,9 @@ export default function AddAppointmentPage() {
                         ))}
                     </select>
                 </label>
-            </div>
 
-            <button type="submit" style={{ marginTop: 10 }}>
-                Створити призначення
-            </button>
-        </form>
-    );
+                <button type="submit">Створити призначення</button>
+            </form>
+        </div>
+    )
 }
