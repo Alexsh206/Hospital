@@ -1,9 +1,12 @@
-import { http } from './http'
+import http from './http'
 
 export function login({ phone, password }) {
     return http.post('/auth/login', { phone, password })
 }
 
+export function getProfile() {
+    return http.get('/auth/profile')
+}
 
 export function getAllPatients() {
     return http.get('/patients')
@@ -22,7 +25,7 @@ export function updatePatient(id, data) {
 }
 
 export function deletePatient(id) {
-    return http.delete('/patients', { params: { id } })
+    return http.delete(`/patients/${id}`)
 }
 
 export function getAllStaff() {
@@ -42,7 +45,7 @@ export function updateStaff(id, data) {
 }
 
 export function deleteStaff(id) {
-    return http.delete('/staff', { params: { id } })
+    return http.delete(`/staff/${id}`)
 }
 
 export function getAllAppointments() {
@@ -62,5 +65,5 @@ export function updateAppointment(id, data) {
 }
 
 export function deleteAppointment(id) {
-    return http.delete('/appointments', { params: { id } })
+    return http.delete(`/appointments/${id}`)
 }

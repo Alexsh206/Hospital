@@ -1,4 +1,6 @@
-import { http } from './http';
+import  http  from './http';
+
+
 export const getPatients    = ()    => http.get('/patients')
 
 

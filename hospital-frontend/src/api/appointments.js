@@ -1,4 +1,4 @@
-import { http } from './http';
+import http  from './http';
 
 export const getAppointments    = () => http.get('/appointments');
 export const getAppointmentById = id => http.get(`/appointments/${id}`);

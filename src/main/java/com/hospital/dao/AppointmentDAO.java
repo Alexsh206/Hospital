@@ -76,7 +76,7 @@ public class AppointmentDAO {
 
     public void addAppointment(Appointment a) throws SQLException {
         String sql = """
-        INSERT INTO appointment
+        INSERT INTO appointments
           (appointment_date, diagnosis, medication, procedure_name,
            surgery, status, doctor_id, patient_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)

@@ -1,4 +1,4 @@
-import { http } from './http';
+import http from './http';
 
 export const getStaff    = () => http.get('/staff');
 export const getStaffById= id => http.get(`/staff/${id}`);

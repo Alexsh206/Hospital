@@ -26,14 +26,13 @@ export default function EditAppointmentPage(){
 
     return (
         <form onSubmit={submit} style={{ padding:20 }}>
-            {/* те же поля, что и в Add, но с заполнением form[...] */}
+
             <div>
                 <label>Статус:<br/>
                     <select name="status" value={form.status} onChange={handle}>
-                        <option value="PENDING">PENDING</option>
-                        <option value="IN_PROGRESS">IN_PROGRESS</option>
-                        <option value="COMPLETED">COMPLETED</option>
-                        <option value="DISCHARGED">DISCHARGED</option>
+                        <option value="PENDING">Очікує</option>
+                        <option value="IN_PROGRESS">В процесі</option>
+                        <option value="COMPLETED">Завершено</option>
                     </select>
                 </label>
             </div>

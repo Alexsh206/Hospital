@@ -1,12 +1,20 @@
 import axios from 'axios'
 
-export const http = axios.create({
+// Всі запити прокидуються на /api
+const http = axios.create({
     baseURL: '/api',
-    headers: { 'Content-Type': 'application/json' }
 })
 
-http.interceptors.request.use(config => {
-    const t = localStorage.getItem('token')
-    if (t) config.headers.Authorization = `Bearer ${t}`
-    return config
-})
+// Кожен запит підставляє Bearer-токен, якщо він є в localStorage
+http.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token')
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+    },
+    error => Promise.reject(error)
+)
+
+export default http

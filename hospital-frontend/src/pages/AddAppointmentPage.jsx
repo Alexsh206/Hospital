@@ -1,151 +1,188 @@
+// src/pages/AddAppointmentPage.jsx
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../auth/AuthProvider'
-import * as appointmentsApi from '../api/appointments'
-import * as patientsApi     from '../api/patients'
-import * as staffApi        from '../api/staff'
-import { AppointmentStatus } from '../api/appointments.js';
+import { useNavigate }      from 'react-router-dom'
+import { useAuth }          from '../auth/AuthProvider'
+import * as api             from '../api/api'
 
 export default function AddAppointmentPage() {
-    const { user } = useAuth()           // { id, name, role }
-    const nav = useNavigate()
+    const { user }    = useAuth()
+    const navigate    = useNavigate()
 
     const [form, setForm] = useState({
         appointmentDate: '',
-        diagnosis: '',
-        medication: '',
-        procedureName: '',
-        surgery: '',
-        status: AppointmentStatus.PENDING,
-        doctorId: '',
-        patientId: '',
+        diagnosis:       '',
+        medication:      '',
+        surgery:         '',
+        procedureName:   '',
+        status:          'EXPECTING',
+        doctorId:        '',
+        patientId:       '',
     })
 
-    const [doctors, setDoctors]   = useState([])
-    const [patients, setPatients] = useState([])
+    const [patientsList, setPatientsList] = useState([])
 
+    // загрузка списка пацієнтів
     useEffect(() => {
-        // Получаем список врачей
-        staffApi.getStaff()
-            .then(res => setDoctors(res.data))
-            .catch(console.error)
-
-        // Получаем список пациентов
-        patientsApi.getPatients()
-            .then(res => setPatients(res.data))
+        api.getAllPatients()
+            .then(({ data }) => setPatientsList(data))
             .catch(console.error)
     }, [])
 
+
+    useEffect(() => {
+        if (user?.id) {
+            setForm(prev => ({ ...prev, doctorId: String(user.id) }))
+        }
+    }, [user?.id])
+
     const handleChange = e => {
         const { name, value } = e.target
-        setForm(f => ({ ...f, [name]: value }))
+        setForm(prev => ({ ...prev, [name]: value }))
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault()
-        appointmentsApi.addAppointment(form)
-            .then(() => nav('/appointments'))
-            .catch(console.error)
+
+        const payload = {
+            appointmentDate: form.appointmentDate,
+            status:          form.status,
+            doctorId:        Number(form.doctorId),
+            patientId:       Number(form.patientId),
+            // для лікаря додаємо diagnosis і surgery
+            ...(user.position === 'Доктор' && {
+                diagnosis:       form.diagnosis,
+                surgery:         form.surgery
+            }),
+            // для всіх – ліки і процедуру
+            medication:      form.medication,
+            procedureName:   form.procedureName,
+        }
+
+        try {
+            await api.addAppointment(payload)
+            navigate(`/dashboard/staff/${user.id}`, { replace: true })
+        } catch (err) {
+            console.error(err)
+            alert('Не вдалося створити призначення')
+        }
     }
 
     return (
-        <div>
+        <div style={{ maxWidth: 600, margin: '2rem auto' }}>
             <h1>Нове призначення</h1>
+
             <form onSubmit={handleSubmit}>
-                <label>
-                    Дата призначення:
-                    <input
-                        type="date"
-                        name="appointmentDate"
-                        value={form.appointmentDate}
-                        onChange={handleChange}
-                    />
-                </label>
 
-                <label>
-                    Діагноз:
-                    <input
-                        name="diagnosis"
-                        value={form.diagnosis}
-                        onChange={handleChange}
-                    />
-                </label>
+                {/* Скрытое поле doctorId */}
+                <input type="hidden" name="doctorId" value={form.doctorId} />
 
-                <label>
-                    Ліки:
-                    <input
-                        name="medication"
-                        value={form.medication}
-                        onChange={handleChange}
-                    />
-                </label>
+                {/* Дата призначення */}
+                <div style={{ marginBottom: 12 }}>
+                    <label>
+                        Дата призначення:<br/>
+                        <input
+                            type="date"
+                            name="appointmentDate"
+                            value={form.appointmentDate}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
+                </div>
 
-                {/* Только для роли doctor */}
-                {user.role === 'doctor' && (
+                {/* Поля только для лікаря */}
+                {user.position === 'Доктор' && (
                     <>
-                        <label>
-                            Процедури:
-                            <input
-                                name="procedureName"
-                                value={form.procedureName}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label>
-                            Операції:
-                            <input
-                                name="surgery"
-                                value={form.surgery}
-                                onChange={handleChange}
-                            />
-                        </label>
+                        <div style={{ marginBottom: 12 }}>
+                            <label>
+                                Діагноз:<br/>
+                                <input
+                                    type="text"
+                                    name="diagnosis"
+                                    value={form.diagnosis}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </label>
+                        </div>
+
+                        <div style={{ marginBottom: 12 }}>
+                            <label>
+                                Операція:<br/>
+                                <input
+                                    type="text"
+                                    name="surgery"
+                                    value={form.surgery}
+                                    onChange={handleChange}
+                                    placeholder="Назва операції"
+                                />
+                            </label>
+                        </div>
                     </>
                 )}
 
-                <label>
-                    Статус:
-                    <select
-                        name="status"
-                        value={form.status}
-                        onChange={handleChange}
-                    >
-                        {Object.values(AppointmentStatus).map(s => (
-                            <option key={s} value={s}>{s}</option>
-                        ))}
-                    </select>
-                </label>
+                {/* Ліки – всім */}
+                <div style={{ marginBottom: 12 }}>
+                    <label>
+                        Ліки:<br/>
+                        <input
+                            type="text"
+                            name="medication"
+                            value={form.medication}
+                            onChange={handleChange}
+                        />
+                    </label>
+                </div>
 
-                <label>
-                    Лікар:
-                    <select
-                        name="doctorId"
-                        value={form.doctorId}
-                        onChange={handleChange}
-                    >
-                        <option value="">— виберіть лікаря —</option>
-                        {doctors.map(d => (
-                            <option key={d.id} value={d.id}>
-                                {d.lastName} {d.firstName} ({d.position})
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                {/* Процедура – всім */}
+                <div style={{ marginBottom: 12 }}>
+                    <label>
+                        Процедура:<br/>
+                        <input
+                            type="text"
+                            name="procedureName"
+                            value={form.procedureName}
+                            onChange={handleChange}
+                            placeholder="Назва процедури"
+                        />
+                    </label>
+                </div>
 
-                <label>
-                    Пацієнт:
-                    <select
-                        name="patientId"
-                        value={form.patientId}
-                        onChange={handleChange}
-                    >
-                        <option value="">— виберіть пацієнта —</option>
-                        {patients.map(p => (
-                            <option key={p.id} value={p.id}>
-                                {p.lastName} {p.firstName}
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                {/* Статус */}
+                <div style={{ marginBottom: 12 }}>
+                    <label>
+                        Статус:<br/>
+                        <select
+                            name="status"
+                            value={form.status}
+                            onChange={handleChange}
+                        >
+                            <option value="EXPECTING">Очікує</option>
+                            <option value="IN_PROGRESS">В процесі</option>
+                            <option value="COMPLETED">Завершено</option>
+                        </select>
+                    </label>
+                </div>
+
+                {/* Пацієнт */}
+                <div style={{ marginBottom: 20 }}>
+                    <label>
+                        Пацієнт:<br/>
+                        <select
+                            name="patientId"
+                            value={form.patientId}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">– оберіть пацієнта –</option>
+                            {patientsList.map(p => (
+                                <option key={p.id} value={p.id}>
+                                    {p.firstName} {p.lastName}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
 
                 <button type="submit">Створити призначення</button>
             </form>
