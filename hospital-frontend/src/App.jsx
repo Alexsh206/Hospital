@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react'
 import {
     Routes,
@@ -13,6 +12,8 @@ import StaffDashboardPage   from './pages/StaffDashboardPage'
 import AppointmentsPage     from './pages/AppointmentsPage'
 import AddAppointmentPage   from './pages/AddAppointmentPage'
 import EditAppointmentPage  from './pages/EditAppointmentPage'
+import AddPatientPage from "./pages/AddPatientPage.jsx";
+import EditPatientPage from "./pages/EditPatientPage.jsx";
 
 function PrivateRoute({ children, staffOnly, doctorOnly }) {
     const { user, isAuthenticated } = useAuth()
@@ -58,6 +59,9 @@ export default function App() {
                     </PrivateRoute>
                 }
             />
+            <Route path="/patients/add"   element={<PrivateRoute staffOnly={true}><AddPatientPage/></PrivateRoute>} />
+
+            <Route path="/patients/:id/edit" element={<PrivateRoute staffOnly={true}><EditPatientPage/></PrivateRoute>} />
 
             <Route
                 path="/dashboard/staff/:id"

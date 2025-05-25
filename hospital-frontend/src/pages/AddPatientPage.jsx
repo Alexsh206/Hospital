@@ -1,11 +1,13 @@
+// src/pages/AddPatientPage.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addPatient } from '../api/patients';
+import { useNavigate }    from 'react-router-dom';
+import { useAuth }        from '../auth/AuthProvider';
+import * as api           from '../api/api';
 
 export default function AddPatientPage() {
-
-    const navigate = useNavigate();
-    const [form, setForm] = useState({
+    const { user }   = useAuth();
+    const navigate   = useNavigate();
+    const [form, setForm]   = useState({
         lastName: '',
         firstName: '',
         patronymic: '',
@@ -23,14 +25,13 @@ export default function AddPatientPage() {
 
     const handleSubmit = async e => {
         e.preventDefault();
-        console.log(' handleSubmit called', form);
         try {
-            await addPatient(form);
-            // після успіху — переходимо назад до списку
-            navigate('/patients');
+            await api.addPatient(form);
+
+            navigate(`/dashboard/staff/${user.id}`, { replace: true });
         } catch (err) {
             console.error(err);
-            setError(err.response?.data || 'Помилка при додаванні');
+            setError(err.response?.data?.error || 'Помилка при додаванні пацієнта');
         }
     };
 
@@ -56,7 +57,8 @@ export default function AddPatientPage() {
                 </div>
                 <div>
                     <label>Стать:<br/>
-                        <select name="sex" value={form.sex} onChange={handleChange}>
+                        <select name="sex" value={form.sex} onChange={handleChange} required>
+                            <option value="">– оберіть стать –</option>
                             <option value="M">M</option>
                             <option value="F">F</option>
                         </select>
@@ -64,12 +66,12 @@ export default function AddPatientPage() {
                 </div>
                 <div>
                     <label>Дата народження:<br/>
-                        <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange}/>
+                        <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} required/>
                     </label>
                 </div>
                 <div>
                     <label>Телефон:<br/>
-                        <input name="phone" value={form.phone} onChange={handleChange}/>
+                        <input name="phone" value={form.phone} onChange={handleChange} required/>
                     </label>
                 </div>
                 <div>
