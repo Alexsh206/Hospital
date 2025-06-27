@@ -1,125 +1,140 @@
+// src/pages/StaffDashboardPage.jsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate }              from 'react-router-dom'
 import { useAuth }                  from '../auth/AuthProvider'
-import * as api                      from '../api/api'
+import * as api                     from '../api/api'
+import './StaffDashboardPage.css'
 
 export default function StaffDashboardPage() {
-    const { user } = useAuth()
-    const navigate = useNavigate()
+    const { user, logout } = useAuth()
+    const navigate         = useNavigate()
 
-    // стани
-    const [patients, setPatients]       = useState([])
+    const [patients,     setPatients]     = useState([])
     const [appointments, setAppointments] = useState([])
 
-    // завантажуємо пацієнтів та призначення
     useEffect(() => {
         api.getAllPatients()
-            .then(({ data }) => setPatients(data))
-            .catch(console.error)
+            .then(r => setPatients(r.data))
+            .catch(err => console.error('Не вдалось завантажити пацієнтів:', err))
 
         api.getAllAppointments()
-            .then(({ data }) => setAppointments(data))
-            .catch(console.error)
+            .then(r => setAppointments(r.data))
+            .catch(err => console.error('Не вдалось завантажити призначення:', err))
     }, [])
 
-    // видалити пацієнта
     const handleDeletePatient = async id => {
-        if (!window.confirm('Видалити пацієнта #' + id + '?')) return
+        if (!window.confirm(`Видалити пацієнта #${id}?`)) return
         try {
             await api.deletePatient(id)
-            setPatients(p => p.filter(x => x.id !== id))
-        } catch (err) {
-            console.error(err)
+            setPatients(ps => ps.filter(p => p.id !== id))
+        } catch {
             alert('Не вдалося видалити пацієнта')
         }
     }
 
-    // видалити призначення
     const handleDeleteAppointment = async id => {
-        if (!window.confirm('Видалити призначення #' + id + '?')) return
+        if (!window.confirm(`Видалити призначення #${id}?`)) return
         try {
             await api.deleteAppointment(id)
-            setAppointments(a => a.filter(x => x.id !== id))
-        } catch (err) {
-            console.error(err)
+            setAppointments(ap => ap.filter(a => a.id !== id))
+        } catch {
             alert('Не вдалося видалити призначення')
         }
     }
 
-    return (
-        <div style={{ padding: '1rem' }}>
-            <h1>Дашборд персоналу</h1>
+    const getPatientName = patientId => {
+        const p = patients.find(x => x.id === patientId)
+        return p ? `${p.firstName} ${p.lastName}` : `#${patientId}`
+    }
 
-            {/* --- Список пацієнтів --- */}
-            <section style={{ marginBottom: '2rem' }}>
-                <h2>Список пацієнтів</h2>
-                <button onClick={() => navigate('/patients/add')}>
+    return (
+        <div className="staff-dashboard">
+            <div className="staff-card">
+                <div>
+                    <h2>Ваш профіль</h2>
+                    <p><strong>Ім’я:</strong> {user.name}</p>
+                    <p><strong>Посада:</strong> {user.position}</p>
+                </div>
+                <button className="btn btn-logout" onClick={logout}>
+                    Вийти
+                </button>
+            </div>
+
+            {/* ====== Список пацієнтів ====== */}
+            <section className="card">
+                <h3>Список пацієнтів</h3>
+                <button className="btn btn-primary" onClick={() => navigate('/patients/add')}>
                     Додати пацієнта
                 </button>
-                <table border="1" cellPadding="6" style={{ marginTop: '0.5rem', width: '100%', borderCollapse: 'collapse' }}>
+                <table className="data-table">
                     <thead>
                     <tr>
-                        <th>ID</th><th>Ім’я</th><th>Телефон</th><th>Д. н.</th><th>Дії</th>
+                        <th>ID</th><th>Ім’я</th><th>Телефон</th><th>Дата народження</th><th>Дії</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {patients.map(p => (
+                    {patients.length > 0 ? patients.map(p => (
                         <tr key={p.id}>
                             <td>{p.id}</td>
                             <td>{p.firstName} {p.lastName}</td>
                             <td>{p.phone}</td>
-                            <td>{p.date_of_birth}</td>
+                            <td>{p.dateOfBirth}</td>
                             <td>
-                                <button onClick={() => navigate(`/patients/${p.id}/edit`)}>
+                                <button className="btn btn-secondary"
+                                        onClick={() => navigate(`/patients/${p.id}/edit`)}>
                                     Редагувати
-                                </button>{' '}
-                                <button onClick={() => handleDeletePatient(p.id)}>
+                                </button>
+                                <button className="btn btn-danger"
+                                        onClick={() => handleDeletePatient(p.id)}>
                                     Видалити
                                 </button>
                             </td>
                         </tr>
-                    ))}
-                    {patients.length === 0 && (
+                    )) : (
                         <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>Немає пацієнтів</td>
+                            <td colSpan="5" className="empty">Немає пацієнтів</td>
                         </tr>
                     )}
                     </tbody>
                 </table>
             </section>
 
-            {/* --- Список призначень --- */}
-            <section>
-                <h2>Список призначень</h2>
-                <button onClick={() => navigate('/appointments/add')}>
+            <section className="card">
+                <h3>Список призначень</h3>
+                <button className="btn btn-primary" onClick={() => navigate('/appointments/add')}>
                     Нове призначення
                 </button>
-                <table border="1" cellPadding="6" style={{ marginTop: '0.5rem', width:'100%', borderCollapse: 'collapse' }}>
+                <table className="data-table">
                     <thead>
                     <tr>
                         <th>ID</th><th>Пацієнт</th><th>Дата</th><th>Статус</th><th>Дії</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {appointments.map(app => (
+                    {appointments.length > 0 ? appointments.map(app => (
                         <tr key={app.id}>
                             <td>{app.id}</td>
-                            <td>{app.patientId}</td>
+                            <td>{getPatientName(app.patientId)}</td>
                             <td>{new Date(app.appointmentDate).toLocaleDateString()}</td>
-                            <td>{app.status}</td>
                             <td>
-                                <button onClick={() => navigate(`/appointments/${app.id}/edit`)}>
+                  <span className={`status-badge status-${app.status}`}>
+                    {app.status.replace('_', ' ')}
+                  </span>
+                            </td>
+                            <td>
+                                <button className="btn btn-secondary"
+                                        onClick={() => navigate(`/appointments/${app.id}/edit`)}>
                                     Редагувати
-                                </button>{' '}
-                                <button onClick={() => handleDeleteAppointment(app.id)}>
+                                </button>
+                                <button className="btn btn-danger"
+                                        onClick={() => handleDeleteAppointment(app.id)}>
                                     Видалити
                                 </button>
                             </td>
                         </tr>
-                    ))}
-                    {appointments.length === 0 && (
+                    )) : (
                         <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>Немає призначень</td>
+                            <td colSpan="5" className="empty">Немає призначень</td>
                         </tr>
                     )}
                     </tbody>

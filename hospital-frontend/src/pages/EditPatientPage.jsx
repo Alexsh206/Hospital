@@ -1,4 +1,3 @@
-// src/pages/EditPatientPage.jsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams }    from 'react-router-dom'
 import { useAuth }                    from '../auth/AuthProvider'
@@ -12,7 +11,7 @@ export default function EditPatientPage() {
         lastName: '',
         firstName: '',
         patronymic: '',
-        sex: '',
+        sex: 'M',
         dateOfBirth: '',
         phone: '',
         password: ''
@@ -83,7 +82,7 @@ export default function EditPatientPage() {
                         <input name="phone" value={form.phone} onChange={handleChange} required/>
                     </label>
                 </div>
-
+                {/* Можна лишити пароль незмінним, тому не обов'язково його редагувати */}
                 <button type="submit" style={{ marginTop: 10 }}>Зберегти</button>
             </form>
         </div>

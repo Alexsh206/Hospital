@@ -24,9 +24,8 @@ public class PatientServlet extends HttpServlet {
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo(); // те, що після /patients
+        String pathInfo = req.getPathInfo();
         if (pathInfo != null && pathInfo.length() > 1) {
-            // /patients/{id}
             int id = Integer.parseInt(pathInfo.substring(1));
             Patient p = patientDAO.getPatientById(id);
             if (p != null) {
@@ -35,7 +34,7 @@ public class PatientServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } else {
-            // /patients
+
             List<Patient> patients = patientDAO.getAllPatients();
             writeJson(resp, patients);
         }
