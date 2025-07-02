@@ -5,11 +5,10 @@ export default function AppointmentsPage() {
     const [appointments, setAppointments] = useState([])
 
     useEffect(() => {
-        // робимо запит один раз при першому рендері
         getAppointments().then(r => {
             setAppointments(r.data)
         }).catch(console.error)
-    }, [])  // <- Залежності пусті! Тільки монтування
+    }, [])
 
     return (
         <div style={{ padding:20 }}>

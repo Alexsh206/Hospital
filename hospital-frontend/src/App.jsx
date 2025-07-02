@@ -8,7 +8,7 @@ import AppointmentsPage     from './pages/AppointmentsPage'
 import AddAppointmentPage   from './pages/AddAppointmentPage'
 import EditAppointmentPage  from './pages/EditAppointmentPage'
 import AddPatientPage from "./pages/AddPatientPage.jsx"
-import EditPatientPage from "./pages/EditPatientPage.jsx";
+import EditPatientPage from "./pages/EditPatientPage.jsx"
 
 function PrivateRoute({ children, staffOnly, doctorOnly }) {
     const { user, isAuthenticated } = useAuth()

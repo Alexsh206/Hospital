@@ -1,4 +1,3 @@
-// src/pages/StaffDashboardPage.jsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate }              from 'react-router-dom'
 import { useAuth }                  from '../auth/AuthProvider'
@@ -60,7 +59,6 @@ export default function StaffDashboardPage() {
                 </button>
             </div>
 
-            {/* ====== Список пацієнтів ====== */}
             <section className="card">
                 <h3>Список пацієнтів</h3>
                 <button className="btn btn-primary" onClick={() => navigate('/patients/add')}>

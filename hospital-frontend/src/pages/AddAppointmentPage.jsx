@@ -20,7 +20,6 @@ export default function AddAppointmentPage() {
 
     const [patientsList, setPatientsList] = useState([])
 
-    // загрузка списка пацієнтів
     useEffect(() => {
         api.getAllPatients()
             .then(({ data }) => setPatientsList(data))
@@ -47,12 +46,12 @@ export default function AddAppointmentPage() {
             status:          form.status,
             doctorId:        Number(form.doctorId),
             patientId:       Number(form.patientId),
-            // для лікаря додаємо diagnosis і surgery
-            ...(user.position === 'Доктор' && {
+
+            ...(user.position === 'Doctor' && {
                 diagnosis:       form.diagnosis,
                 surgery:         form.surgery
             }),
-            // для всіх – ліки і процедуру
+
             medication:      form.medication,
             procedureName:   form.procedureName,
         }
@@ -72,10 +71,8 @@ export default function AddAppointmentPage() {
 
             <form onSubmit={handleSubmit}>
 
-                {/* Скрытое поле doctorId */}
                 <input type="hidden" name="doctorId" value={form.doctorId} />
 
-                {/* Дата призначення */}
                 <div style={{ marginBottom: 12 }}>
                     <label>
                         Дата призначення:<br/>
@@ -89,8 +86,7 @@ export default function AddAppointmentPage() {
                     </label>
                 </div>
 
-                {/* Поля только для лікаря */}
-                {user.position === 'Доктор' && (
+                {user.position === 'Doctor' && (
                     <>
                         <div style={{ marginBottom: 12 }}>
                             <label>
@@ -120,7 +116,6 @@ export default function AddAppointmentPage() {
                     </>
                 )}
 
-                {/* Ліки – всім */}
                 <div style={{ marginBottom: 12 }}>
                     <label>
                         Ліки:<br/>
@@ -133,7 +128,6 @@ export default function AddAppointmentPage() {
                     </label>
                 </div>
 
-                {/* Процедура – всім */}
                 <div style={{ marginBottom: 12 }}>
                     <label>
                         Процедура:<br/>
@@ -147,7 +141,6 @@ export default function AddAppointmentPage() {
                     </label>
                 </div>
 
-                {/* Статус */}
                 <div style={{ marginBottom: 12 }}>
                     <label>
                         Статус:<br/>
@@ -163,7 +156,6 @@ export default function AddAppointmentPage() {
                     </label>
                 </div>
 
-                {/* Пацієнт */}
                 <div style={{ marginBottom: 20 }}>
                     <label>
                         Пацієнт:<br/>

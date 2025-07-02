@@ -8,8 +8,8 @@ html, body, #root {
 
 #root {
   display: flex;
-  align-items: center;    /* по вертикали */
-  justify-content: center; /* по горизонтали */
+  align-items: center;
+  justify-content: center;
 }
 
 .login-card {
