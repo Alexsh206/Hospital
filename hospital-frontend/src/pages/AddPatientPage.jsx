@@ -1,4 +1,3 @@
-// src/pages/AddPatientPage.jsx
 import React, { useState } from 'react';
 import { useNavigate }    from 'react-router-dom';
 import { useAuth }        from '../auth/AuthProvider';
@@ -27,7 +26,6 @@ export default function AddPatientPage() {
         e.preventDefault();
         try {
             await api.addPatient(form);
-            // Після успіху кидаємо на дашборд персоналу
             navigate(`/dashboard/staff/${user.id}`, { replace: true });
         } catch (err) {
             console.error(err);

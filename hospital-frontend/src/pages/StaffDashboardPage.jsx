@@ -78,10 +78,15 @@ export default function StaffDashboardPage() {
                             <td>{p.phone}</td>
                             <td>{p.dateOfBirth}</td>
                             <td>
+                                {user.position === 'Doctor' && (
+                                <>
                                 <button className="btn btn-secondary"
                                         onClick={() => navigate(`/patients/${p.id}/edit`)}>
                                     Редагувати
                                 </button>
+                                </>
+                                    )
+                                }
                                 <button className="btn btn-danger"
                                         onClick={() => handleDeletePatient(p.id)}>
                                     Видалити
