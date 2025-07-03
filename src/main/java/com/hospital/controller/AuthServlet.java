@@ -50,12 +50,10 @@ public class AuthServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        // 1) Читаем phone/password
         Map<?,?> creds = mapper.readValue(req.getInputStream(), Map.class);
         String phone = (String) creds.get("phone");
         String pw    = (String) creds.get("password");
 
-        // 2) Пытаемся получить пациента
         try {
             Patient p = patientDao.loginByPhoneAndPassword(phone, pw);
             if (p != null) {
@@ -73,7 +71,6 @@ public class AuthServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
 
-        // 3) Или сотрудника
         try {
             Staff s = staffDao.loginByPhoneAndPassword(phone, pw);
             if (s != null) {
@@ -92,7 +89,6 @@ public class AuthServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
 
-        // 4) Иначе — 401
         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         mapper.writeValue(resp.getOutputStream(),
                 Map.of("error", "Invalid credentials"));

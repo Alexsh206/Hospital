@@ -25,7 +25,7 @@ export function updatePatient(id, data) {
 }
 
 export function deletePatient(id) {
-    return http.delete(`/patients/${id}`)
+    return http.delete(`/patients?id=${id}`);
 }
 
 export function getAllStaff() {

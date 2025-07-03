@@ -7,7 +7,6 @@ import './StaffDashboardPage.css'
 export default function StaffDashboardPage() {
     const { user, logout } = useAuth()
     const navigate         = useNavigate()
-
     const [patients,     setPatients]     = useState([])
     const [appointments, setAppointments] = useState([])
 
@@ -20,7 +19,6 @@ export default function StaffDashboardPage() {
             .then(r => setAppointments(r.data))
             .catch(err => console.error('Не вдалось завантажити призначення:', err))
     }, [])
-
     const handleDeletePatient = async id => {
         if (!window.confirm(`Видалити пацієнта #${id}?`)) return
         try {
@@ -30,7 +28,6 @@ export default function StaffDashboardPage() {
             alert('Не вдалося видалити пацієнта')
         }
     }
-
     const handleDeleteAppointment = async id => {
         if (!window.confirm(`Видалити призначення #${id}?`)) return
         try {
@@ -40,12 +37,10 @@ export default function StaffDashboardPage() {
             alert('Не вдалося видалити призначення')
         }
     }
-
     const getPatientName = patientId => {
         const p = patients.find(x => x.id === patientId)
         return p ? `${p.firstName} ${p.lastName}` : `#${patientId}`
     }
-
     return (
         <div className="staff-dashboard">
             <div className="staff-card">
@@ -58,7 +53,6 @@ export default function StaffDashboardPage() {
                     Вийти
                 </button>
             </div>
-
             <section className="card">
                 <h3>Список пацієнтів</h3>
                 <button className="btn btn-primary" onClick={() => navigate('/patients/add')}>
