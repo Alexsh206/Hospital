@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate }      from 'react-router-dom'
 import { useAuth }          from '../auth/AuthProvider'
 import * as api             from '../api/api'
+import './EditAdd.css';
 
 export default function AddAppointmentPage() {
-    const { user }    = useAuth()
-    const navigate    = useNavigate()
+    const { user } = useAuth()
+    const navigate = useNavigate()
 
     const [form, setForm] = useState({
         appointmentDate: '',
@@ -26,56 +27,49 @@ export default function AddAppointmentPage() {
             .catch(console.error)
     }, [])
 
-
     useEffect(() => {
         if (user?.id) {
-            setForm(prev => ({ ...prev, doctorId: String(user.id) }))
+            setForm(f => ({ ...f, doctorId: String(user.id) }))
         }
     }, [user?.id])
 
     const handleChange = e => {
         const { name, value } = e.target
-        setForm(prev => ({ ...prev, [name]: value }))
+        setForm(f => ({ ...f, [name]: value }))
     }
 
     const handleSubmit = async e => {
         e.preventDefault()
-
         const payload = {
             appointmentDate: form.appointmentDate,
             status:          form.status,
             doctorId:        Number(form.doctorId),
             patientId:       Number(form.patientId),
-
             ...(user.position === 'Doctor' && {
-                diagnosis:       form.diagnosis,
-                surgery:         form.surgery
+                diagnosis: form.diagnosis,
+                surgery:   form.surgery
             }),
-
-            medication:      form.medication,
-            procedureName:   form.procedureName,
+            medication:    form.medication,
+            procedureName: form.procedureName,
         }
-
         try {
             await api.addAppointment(payload)
             navigate(`/dashboard/staff/${user.id}`, { replace: true })
-        } catch (err) {
-            console.error(err)
+        } catch {
             alert('Не вдалося створити призначення')
         }
     }
 
     return (
-        <div style={{ maxWidth: 600, margin: '2rem auto' }}>
-            <h1>Нове призначення</h1>
+        <div className="page-container">
+            <div className="patient-form-card">
+                <h2>Нове призначення</h2>
 
-            <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
+                    <input type="hidden" name="doctorId" value={form.doctorId} />
 
-                <input type="hidden" name="doctorId" value={form.doctorId} />
-
-                <div style={{ marginBottom: 12 }}>
-                    <label>
-                        Дата призначення:<br/>
+                    <div className="field">
+                        <label>Дата призначення:</label>
                         <input
                             type="date"
                             name="appointmentDate"
@@ -83,14 +77,12 @@ export default function AddAppointmentPage() {
                             onChange={handleChange}
                             required
                         />
-                    </label>
-                </div>
+                    </div>
 
-                {user.position === 'Doctor' && (
-                    <>
-                        <div style={{ marginBottom: 12 }}>
-                            <label>
-                                Діагноз:<br/>
+                    {user.position === 'Doctor' && (
+                        <>
+                            <div className="field">
+                                <label>Діагноз:</label>
                                 <input
                                     type="text"
                                     name="diagnosis"
@@ -98,12 +90,9 @@ export default function AddAppointmentPage() {
                                     onChange={handleChange}
                                     required
                                 />
-                            </label>
-                        </div>
-
-                        <div style={{ marginBottom: 12 }}>
-                            <label>
-                                Операція:<br/>
+                            </div>
+                            <div className="field">
+                                <label>Операція:</label>
                                 <input
                                     type="text"
                                     name="surgery"
@@ -111,26 +100,22 @@ export default function AddAppointmentPage() {
                                     onChange={handleChange}
                                     placeholder="Назва операції"
                                 />
-                            </label>
-                        </div>
-                    </>
-                )}
+                            </div>
+                        </>
+                    )}
 
-                <div style={{ marginBottom: 12 }}>
-                    <label>
-                        Ліки:<br/>
+                    <div className="field">
+                        <label>Ліки:</label>
                         <input
                             type="text"
                             name="medication"
                             value={form.medication}
                             onChange={handleChange}
                         />
-                    </label>
-                </div>
+                    </div>
 
-                <div style={{ marginBottom: 12 }}>
-                    <label>
-                        Процедура:<br/>
+                    <div className="field">
+                        <label>Процедура:</label>
                         <input
                             type="text"
                             name="procedureName"
@@ -138,12 +123,10 @@ export default function AddAppointmentPage() {
                             onChange={handleChange}
                             placeholder="Назва процедури"
                         />
-                    </label>
-                </div>
+                    </div>
 
-                <div style={{ marginBottom: 12 }}>
-                    <label>
-                        Статус:<br/>
+                    <div className="field">
+                        <label>Статус:</label>
                         <select
                             name="status"
                             value={form.status}
@@ -153,12 +136,10 @@ export default function AddAppointmentPage() {
                             <option value="IN_PROGRESS">В процесі</option>
                             <option value="COMPLETED">Завершено</option>
                         </select>
-                    </label>
-                </div>
+                    </div>
 
-                <div style={{ marginBottom: 20 }}>
-                    <label>
-                        Пацієнт:<br/>
+                    <div className="field">
+                        <label>Пацієнт:</label>
                         <select
                             name="patientId"
                             value={form.patientId}
@@ -172,11 +153,13 @@ export default function AddAppointmentPage() {
                                 </option>
                             ))}
                         </select>
-                    </label>
-                </div>
+                    </div>
 
-                <button type="submit">Створити призначення</button>
-            </form>
+                    <button type="submit" className="btn btn-primary">
+                        Створити призначення
+                    </button>
+                </form>
+            </div>
         </div>
     )
 }

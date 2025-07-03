@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate }    from 'react-router-dom';
 import { useAuth }        from '../auth/AuthProvider';
 import * as api           from '../api/api';
+import './EditAdd.css'
 
 export default function AddPatientPage() {
     const { user }   = useAuth();
@@ -24,6 +25,7 @@ export default function AddPatientPage() {
 
     const handleSubmit = async e => {
         e.preventDefault();
+        setError(null);
         try {
             await api.addPatient(form);
             navigate(`/dashboard/staff/${user.id}`, { replace: true });
@@ -34,51 +36,86 @@ export default function AddPatientPage() {
     };
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Додати пацієнта</h2>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Прізвище:<br/>
-                        <input name="lastName" value={form.lastName} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>Ім’я:<br/>
-                        <input name="firstName" value={form.firstName} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>По батькові:<br/>
-                        <input name="patronymic" value={form.patronymic} onChange={handleChange}/>
-                    </label>
-                </div>
-                <div>
-                    <label>Стать:<br/>
-                        <select name="sex" value={form.sex} onChange={handleChange} required>
+        <div className="page-container">
+            <div className="patient-form-card">
+                <h2>Додати пацієнта</h2>
+                {error && <div className="error-message">{error}</div>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="field">
+                        <label>Прізвище:</label>
+                        <input
+                            name="lastName"
+                            value={form.lastName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Ім’я:</label>
+                        <input
+                            name="firstName"
+                            value={form.firstName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>По батькові:</label>
+                        <input
+                            name="patronymic"
+                            value={form.patronymic}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Стать:</label>
+                        <select
+                            name="sex"
+                            value={form.sex}
+                            onChange={handleChange}
+                            required
+                        >
                             <option value="">– оберіть стать –</option>
                             <option value="M">M</option>
                             <option value="F">F</option>
                         </select>
-                    </label>
-                </div>
-                <div>
-                    <label>Дата народження:<br/>
-                        <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>Телефон:<br/>
-                        <input name="phone" value={form.phone} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>Пароль:<br/>
+                    </div>
+
+                    <div className="field">
+                        <label>Дата народження:</label>
+                        <input
+                            type="date"
+                            name="dateOfBirth"
+                            value={form.dateOfBirth}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Телефон:</label>
+                        <input
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Пароль:</label>
                         <input type="password" name="password" value={form.password} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <button type="submit" style={{ marginTop: 10 }}>Додати</button>
-            </form>
+                    </div>
+
+                    <button type="submit" className="btn btn-primary">
+                        Додати
+                    </button>
+                </form>
+            </div>
         </div>
     );
 }

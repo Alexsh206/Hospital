@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams }    from 'react-router-dom'
 import { useAuth }                    from '../auth/AuthProvider'
 import * as api                       from '../api/api'
+import './EditAdd.css';
 
 export default function EditPatientPage() {
     const { id }    = useParams()
     const { user }  = useAuth()
     const navigate  = useNavigate()
     const [form, setForm] = useState({
-        lastName: '',
-        firstName: '',
-        patronymic: '',
-        sex: 'M',
+        lastName:    '',
+        firstName:   '',
+        patronymic:  '',
+        sex:         '',
         dateOfBirth: '',
-        phone: '',
-        password: ''
+        phone:       '',
+        password:    ''
     })
     const [error, setError] = useState(null)
 
@@ -25,7 +26,7 @@ export default function EditPatientPage() {
                 alert('Не вдалося завантажити дані пацієнта')
                 navigate(`/dashboard/staff/${user.id}`, { replace: true })
             })
-    }, [id])
+    }, [id, navigate, user.id])
 
     const handleChange = e => {
         const { name, value } = e.target
@@ -34,9 +35,9 @@ export default function EditPatientPage() {
 
     const handleSubmit = async e => {
         e.preventDefault()
+        setError(null)
         try {
             await api.updatePatient(id, form)
-            // Після успіху — назад на дашборд персоналу
             navigate(`/dashboard/staff/${user.id}`, { replace: true })
         } catch (err) {
             console.error(err)
@@ -45,46 +46,91 @@ export default function EditPatientPage() {
     }
 
     return (
-        <div style={{ padding: 20 }}>
-            <h2>Редагувати пацієнта #{id}</h2>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Прізвище:<br/>
-                        <input name="lastName" value={form.lastName} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>Ім’я:<br/>
-                        <input name="firstName" value={form.firstName} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>По батькові:<br/>
-                        <input name="patronymic" value={form.patronymic} onChange={handleChange}/>
-                    </label>
-                </div>
-                <div>
-                    <label>Стать:<br/>
-                        <select name="sex" value={form.sex} onChange={handleChange} required>
+        <div className="page-container">
+            <div className="patient-form-card">
+                <h2>Редагувати пацієнта #{id}</h2>
+                {error && <div className="error-message">{error}</div>}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="field">
+                        <label>Прізвище:</label>
+                        <input
+                            name="lastName"
+                            value={form.lastName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Ім’я:</label>
+                        <input
+                            name="firstName"
+                            value={form.firstName}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>По батькові:</label>
+                        <input
+                            name="patronymic"
+                            value={form.patronymic}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Стать:</label>
+                        <select
+                            name="sex"
+                            value={form.sex}
+                            onChange={handleChange}
+                            required
+                        >
                             <option value="M">M</option>
                             <option value="F">F</option>
                         </select>
-                    </label>
-                </div>
-                <div>
-                    <label>Дата народження:<br/>
-                        <input type="date" name="dateOfBirth" value={form.dateOfBirth} onChange={handleChange} required/>
-                    </label>
-                </div>
-                <div>
-                    <label>Телефон:<br/>
-                        <input name="phone" value={form.phone} onChange={handleChange} required/>
-                    </label>
-                </div>
-                {/* Можна лишити пароль незмінним, тому не обов'язково його редагувати */}
-                <button type="submit" style={{ marginTop: 10 }}>Зберегти</button>
-            </form>
+                    </div>
+
+                    <div className="field">
+                        <label>Дата народження:</label>
+                        <input
+                            type="date"
+                            name="dateOfBirth"
+                            value={form.dateOfBirth}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    <div className="field">
+                        <label>Телефон:</label>
+                        <input
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
+                    {/* Якщо змінювати пароль не потрібно, можна залишити це поле закоментованим */}
+                    {/*<div className="field">
+            <label>Пароль:</label>
+            <input
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+            />
+          </div>*/}
+
+                    <button type="submit" className="btn btn-primary">
+                        Зберегти
+                    </button>
+                </form>
+            </div>
         </div>
     )
 }

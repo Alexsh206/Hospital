@@ -7,7 +7,7 @@ export default function AddStaffPage() {
         lastName: '',
         firstName: '',
         patronymic: '',
-        position: 'Лікар', // значення за замовчуванням
+        position: 'Лікар',
         phone: '',
         password: ''
     });
