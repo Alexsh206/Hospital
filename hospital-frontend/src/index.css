@@ -13,8 +13,9 @@ html, body, #root {
 }
 
 .login-card {
-  width: 320px;
-  padding: 24px;
+  width: 480px;
+  height: 270px;
+  padding: 48px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -26,7 +27,7 @@ html, body, #root {
   text-align: center;
 }
 .login-card .field {
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 .login-card .field label {
   display: block;
@@ -42,7 +43,7 @@ html, body, #root {
 }
 .login-card button {
   width: 100%;
-  padding: 10px;
+  padding: 20px;
   background: #007bff;
   color: #fff;
   border: none;
