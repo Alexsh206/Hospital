@@ -15,9 +15,7 @@ import java.util.List;
 
 @WebServlet(urlPatterns = {"/api/patients", "/api/patients/*"})
 public class PatientServlet extends HttpServlet {
-
     private final PatientDAO patientDAO = new PatientDAO();
-
 
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())

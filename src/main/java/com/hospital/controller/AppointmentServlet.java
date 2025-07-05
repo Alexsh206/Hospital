@@ -21,7 +21,7 @@ public class AppointmentServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        // Подключаем поддержку java.time (LocalDate) и выводим их как ISO‐строки
+
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
