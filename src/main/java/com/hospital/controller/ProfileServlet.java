@@ -1,7 +1,9 @@
 package com.hospital.controller;
 
+import com.hospital.dao.AdministrationDAO;
 import com.hospital.dao.PatientDAO;
 import com.hospital.dao.StaffDAO;
+import com.hospital.model.Administration;
 import com.hospital.model.Patient;
 import com.hospital.model.Staff;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class ProfileServlet extends HttpServlet {
     private final PatientDAO patientDao = new PatientDAO();
     private final StaffDAO   staffDao   = new StaffDAO();
+    private final AdministrationDAO administrationDao = new AdministrationDAO();
     private final ObjectMapper mapper = new ObjectMapper();
 
     private static final String SECRET = "jZ8Qc+L3B9kZ0v4oW5TnE6RqY2X1s7uVJHcAwGyfF1E=!";
@@ -66,8 +69,8 @@ public class ProfileServlet extends HttpServlet {
                 ));
             }
 
+
         } catch (JwtException e) {
-            // просрочен или невалиден
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (SQLException e) {
             throw new RuntimeException(e);
