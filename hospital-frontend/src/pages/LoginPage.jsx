@@ -1,4 +1,3 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 

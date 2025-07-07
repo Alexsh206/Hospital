@@ -1,4 +1,3 @@
-// src/main/java/com/hospital/filter/CorsFilter.java
 package com.hospital.filter;
 
 import jakarta.servlet.*;
@@ -18,7 +17,6 @@ public class CorsFilter implements Filter {
         response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
 
-        // Обробляємо preflight-запити окремо
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
             return;

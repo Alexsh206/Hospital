@@ -23,7 +23,6 @@ export default function EditAppointmentPage() {
 
     const handleSubmit = async e => {
         e.preventDefault()
-        // Тут припускаємо, що back-end очікує поля { status, finalDiagnosis }
         await updateAppointment({ ...form, id })
         navigate('/appointments', { replace: true })
     }
