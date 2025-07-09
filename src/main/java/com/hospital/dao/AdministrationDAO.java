@@ -11,6 +11,9 @@ public class AdministrationDAO {
         ad.setId(rs.getInt("id"));
         ad.setPhone(rs.getString("phone"));
         ad.setPassword(rs.getString("password"));
+        ad.setFirst_name(rs.getString("first_name"));
+        ad.setLast_name(rs.getString("last_name"));
+        ad.setPosition(rs.getString("position"));
         return ad;
     }
     public Administration loginByPhoneAndPassword(String phone, String password) throws SQLException {
