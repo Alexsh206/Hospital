@@ -37,13 +37,14 @@ export function AuthProvider({ children }) {
 
             if (role === 'patient') {
                 nav(`/dashboard/patient/${id}`, { replace: true })
-            } else {
-                nav(`/dashboard/staff/${id}`, { replace: true })
+            } else if (role === 'admin') {
+                nav(`/dashboard/admin/${id}`, { replace: true })
             }
-
+            else {
+                nav(`/dashboard/staff/${id}`, { replace: true });
+            }
             return true
         }
-
         return false
     }
 

@@ -9,6 +9,7 @@ import AddAppointmentPage   from './pages/AddAppointmentPage'
 import EditAppointmentPage  from './pages/EditAppointmentPage'
 import AddPatientPage from "./pages/AddPatientPage.jsx"
 import EditPatientPage from "./pages/EditPatientPage.jsx"
+import AdminDashboardPage from './pages/AdminDashboardPage'
 
 function PrivateRoute({ children, staffOnly, doctorOnly }) {
     const { user, isAuthenticated } = useAuth()
@@ -62,6 +63,15 @@ export default function App() {
                 element={
                     <PrivateRoute staffOnly={true}>
                         <StaffDashboardPage/>
+                    </PrivateRoute>
+                }
+            />
+
+            <Route
+                path="/dashboard/admin/:id"
+                element={
+                    <PrivateRoute staffOnly={true /* тут можна окремий прапор if needed */}>
+                        <AdminDashboardPage />
                     </PrivateRoute>
                 }
             />
