@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class DBConnectionUtil {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/hospital"; // зміни назву БД, якщо вона інша
-    private static final String USER = "postgres"; // або інший користувач
-    private static final String PASSWORD = "HOSPITAL3COURSE"; // ВАЖЛИВО: заміни на свій пароль
+    private static final String URL = "jdbc:postgresql://localhost:5432/hospital";
+    private static final String USER = "postgres";
+    private static final String PASSWORD = "HOSPITAL3COURSE";
 
     public static Connection getConnection() {
         try {

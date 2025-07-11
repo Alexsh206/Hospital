@@ -59,7 +59,7 @@ public class ProfileServlet extends HttpServlet {
                         "name",  p.getFirstName() + " " + p.getLastName(),
                         "role",  "patient"
                 ));
-            } else {
+            } else if ("staff".equals(role)) {
                 Staff s = staffDao.getStaffById(id);
                 mapper.writeValue(resp.getOutputStream(), Map.of(
                         "id",       s.getId(),
@@ -69,6 +69,15 @@ public class ProfileServlet extends HttpServlet {
                 ));
             }
 
+            else if ("administration".equals(role)) {
+                Administration ad = administrationDao.getAdministrationById(id);
+                mapper.writeValue(resp.getOutputStream(), Map.of(
+                        "id", ad.getId(),
+                        "name", ad.getFirst_name() + " " + ad.getLast_name(),
+                        "role",  "administration",
+                        "position", ad.getPosition()
+                ));
+            }
 
         } catch (JwtException e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
