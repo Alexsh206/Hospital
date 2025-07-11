@@ -26,6 +26,7 @@ public class AdministrationDAO {
         }
         return administrators;
     }
+
     public Administration getAdministrationById(int id) throws SQLException {
         String sql = "SELECT * FROM administration WHERE id = ?";
         Administration ad = null;
@@ -46,9 +47,33 @@ public class AdministrationDAO {
             }
 
         }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
         return ad;
+    }
+
+    private Administration mapRow(ResultSet rs) throws SQLException {
+        Administration ad = new Administration();
+        ad.setId(rs.getInt("id"));
+        ad.setPhone(rs.getString("phone"));
+        ad.setPassword(rs.getString("password"));
+        ad.setFirst_name(rs.getString("first_name"));
+        ad.setLast_name(rs.getString("last_name"));
+        ad.setPosition(rs.getString("position"));
+        return ad;
+    }
+
+    public Administration loginByPhoneAndPassword(String phone, String password) throws SQLException {
+        String sql = "SELECT * FROM administration WHERE phone = ? AND password = ?";
+        try (Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            stmt.setString(2, password);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
     }
 }
