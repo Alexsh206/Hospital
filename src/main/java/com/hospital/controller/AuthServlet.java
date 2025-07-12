@@ -96,10 +96,10 @@ public class AuthServlet extends HttpServlet {
         try {
             Administration ad = administrationDao.loginByPhoneAndPassword(phone, pw);
             if (ad != null) {
-                String token = createJwtForUser(ad.getId(), "administration");
+                String token = createJwtForUser(ad.getId(), "admin");
                 Map<String,Object> out = new HashMap<>();
                 out.put("token",    token);
-                out.put("role",     "administration");
+                out.put("role",     "admin");
                 out.put("id",       ad.getId());
                 resp.setStatus(HttpServletResponse.SC_OK);
                 mapper.writeValue(resp.getOutputStream(), out);
