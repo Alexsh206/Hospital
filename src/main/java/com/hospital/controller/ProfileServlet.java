@@ -68,13 +68,12 @@ public class ProfileServlet extends HttpServlet {
                         "position", s.getPosition()
                 ));
             }
-
             else if ("administration".equals(role)) {
                 Administration ad = administrationDao.getAdministrationById(id);
                 mapper.writeValue(resp.getOutputStream(), Map.of(
                         "id", ad.getId(),
                         "name", ad.getFirst_name() + " " + ad.getLast_name(),
-                        "role",  "administration",
+                        "role",  "admin",
                         "position", ad.getPosition()
                 ));
             }

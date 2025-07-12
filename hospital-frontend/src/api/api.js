@@ -67,3 +67,4 @@ export function updateAppointment(id, data) {
 export function deleteAppointment(id) {
     return http.delete(`/appointments/${id}`)
 }
+

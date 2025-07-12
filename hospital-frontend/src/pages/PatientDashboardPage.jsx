@@ -11,12 +11,10 @@ export default function PatientDashboardPage() {
     const [appointments, setAppointments] = useState([])
 
     useEffect(() => {
-        // Завантажуємо дані пацієнта
         getPatientById(id)
             .then(res => setPatient(res.data))
             .catch(console.error)
 
-        // Завантажуємо всі призначення та фільтруємо по current patient
         getAppointments()
             .then(res => {
                 const own = res.data.filter(a => a.patientId === Number(id))
