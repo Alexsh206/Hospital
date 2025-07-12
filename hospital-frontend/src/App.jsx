@@ -70,7 +70,7 @@ export default function App() {
             <Route
                 path="/dashboard/admin/:id"
                 element={
-                    <PrivateRoute staffOnly={true /* тут можна окремий прапор if needed */}>
+                    <PrivateRoute staffOnly={true}>
                         <AdminDashboardPage />
                     </PrivateRoute>
                 }
