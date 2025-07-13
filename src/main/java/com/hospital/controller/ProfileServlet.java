@@ -29,7 +29,7 @@ public class ProfileServlet extends HttpServlet {
     private final AdministrationDAO administrationDao = new AdministrationDAO();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private static final String SECRET = "jZ8Qc+L3B9kZ0v4oW5TnE6RqY2X1s7uVJHcAwGyfF1E=!";
+    private static final String SECRET = "jZ8Qc+L3B9kZ0v4oW5TnE6RqY2X1s7uVJHcAwGyfF1E=";
     private static final Key SIGNING_KEY = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
 
     @Override
@@ -68,11 +68,11 @@ public class ProfileServlet extends HttpServlet {
                         "position", s.getPosition()
                 ));
             }
-            else if ("administration".equals(role)) {
+            else if ("admin".equals(role)) {
                 Administration ad = administrationDao.getAdministrationById(id);
                 mapper.writeValue(resp.getOutputStream(), Map.of(
                         "id", ad.getId(),
-                        "name", ad.getFirst_name() + " " + ad.getLast_name(),
+                        "name", ad.getFirstname() + " " + ad.getLastname(),
                         "role",  "admin",
                         "position", ad.getPosition()
                 ));

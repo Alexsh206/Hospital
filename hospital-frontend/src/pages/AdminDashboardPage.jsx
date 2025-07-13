@@ -2,6 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
+
 export default function AdminDashboardPage() {
     const { user } = useAuth()
     const { id }   = useParams()

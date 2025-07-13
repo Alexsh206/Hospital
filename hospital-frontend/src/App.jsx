@@ -11,16 +11,11 @@ import AddPatientPage from "./pages/AddPatientPage.jsx"
 import EditPatientPage from "./pages/EditPatientPage.jsx"
 import AdminDashboardPage from './pages/AdminDashboardPage'
 
-function PrivateRoute({ children, staffOnly, doctorOnly }) {
+function PrivateRoute({ children, staffOnly, doctorOnly, adminOnly }) {
     const { user, isAuthenticated } = useAuth()
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />
-    }
-
-    if (staffOnly && !['Doctor','Nurse'].includes(user.position)) {
-        return <div style={{ padding:20, color:'red' }}>
-            У вас недостатньо прав для доступу до цієї сторінки</div>
     }
 
     if (!staffOnly && user.position) {

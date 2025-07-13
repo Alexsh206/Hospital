@@ -101,6 +101,7 @@ public class AuthServlet extends HttpServlet {
                 out.put("token",    token);
                 out.put("role",     "admin");
                 out.put("id",       ad.getId());
+                out.put("name", ad.getFirstname() + " " + ad.getLastname());
                 resp.setStatus(HttpServletResponse.SC_OK);
                 mapper.writeValue(resp.getOutputStream(), out);
                 return;
