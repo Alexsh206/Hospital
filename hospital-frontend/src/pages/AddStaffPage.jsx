@@ -1,66 +1,68 @@
-import React, { useState } from 'react';
-import { addStaff } from '../api/staff';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react'
+import { addStaff }       from '../api/staff'
+import { useNavigate }    from 'react-router-dom'
+import './EditAdd.css'
 
 export default function AddStaffPage() {
     const [form, setForm] = useState({
-        lastName: '',
-        firstName: '',
+        lastName:   '',
+        firstName:  '',
         patronymic: '',
-        position: 'Лікар',
-        phone: '',
-        password: ''
-    });
-    const nav = useNavigate();
+        position:   '',
+        phone:      '',
+        password:   ''
+    })
+    const navigate = useNavigate()
 
-    const handle = e => {
-        const { name, value } = e.target;
-        setForm(f => ({ ...f, [name]: value }));
-    };
+    const handleChange = e => {
+        const { name, value } = e.target
+        setForm(f => ({ ...f, [name]: value }))
+    }
 
-    const submit = async e => {
-        e.preventDefault();
-        await addStaff({ ...form });
-        nav('/staff');
-    };
+    const handleSubmit = async e => {
+        e.preventDefault()
+        await addStaff(form)
+        navigate('/staff')
+    }
 
     return (
-        <form onSubmit={submit} style={{ padding: 20 }}>
-            <div>
-                <label>Прізвище:<br/>
-                    <input name="lastName" value={form.lastName} onChange={handle} required/>
-                </label>
+        <div className="page-container">
+            <div className="patient-form-card">
+                <h2>Додати працівника</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="field">
+                        <label>Прізвище:</label>
+                        <input name="lastName"   value={form.lastName}   onChange={handleChange} required/>
+                    </div>
+                    <div className="field">
+                        <label>Ім’я:</label>
+                        <input name="firstName"  value={form.firstName}  onChange={handleChange} required/>
+                    </div>
+                    <div className="field">
+                        <label>По батькові:</label>
+                        <input name="patronymic" value={form.patronymic} onChange={handleChange}/>
+                    </div>
+                    <div className="field">
+                        <label>Посада:</label>
+                        <select name="position"  value={form.position}  onChange={handleChange}>
+                            <option value="">– оберіть посаду –</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Nurse">Nurse</option>
+                        </select>
+                    </div>
+                    <div className="field">
+                        <label>Телефон:</label>
+                        <input name="phone"      value={form.phone}      onChange={handleChange} required/>
+                    </div>
+                    <div className="field">
+                        <label>Пароль:</label>
+                        <input type="password" name="password" value={form.password} onChange={handleChange} required/>
+                    </div>
+                    <button type="submit" className="btn btn-primary">
+                        Додати працівника
+                    </button>
+                </form>
             </div>
-            <div>
-                <label>Ім’я:<br/>
-                    <input name="firstName" value={form.firstName} onChange={handle} required/>
-                </label>
-            </div>
-            <div>
-                <label>По батькові:<br/>
-                    <input name="patronymic" value={form.patronymic} onChange={handle}/>
-                </label>
-            </div>
-            <div>
-                <label>Посада:<br/>
-                    <select name="position" value={form.position} onChange={handle}>
-                        <option value="Доктор">Доктор</option>
-                        <option value="Медсестра">Медсестра</option>
-                        <option value="Медбрат">Медбрат</option>
-                    </select>
-                </label>
-            </div>
-            <div>
-                <label>Телефон:<br/>
-                    <input name="phone" value={form.phone} onChange={handle} required/>
-                </label>
-            </div>
-            <div>
-                <label>Пароль:<br/>
-                    <input type="password" name="password" value={form.password} onChange={handle} required/>
-                </label>
-            </div>
-            <button type="submit" style={{ marginTop:10 }}>Додати працівника</button>
-        </form>
-    );
+        </div>
+    )
 }
