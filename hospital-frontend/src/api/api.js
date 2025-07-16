@@ -8,6 +8,10 @@ export function getProfile() {
     return http.get('/auth/profile')
 }
 
+export function register(data) {
+    return http.post('/auth/register', data);
+}
+
 export function getAllPatients() {
     return http.get('/patients')
 }

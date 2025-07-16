@@ -12,8 +12,10 @@ import EditPatientPage from "./pages/EditPatientPage.jsx"
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import AddStaffPage from "./pages/AddStaffPage.jsx";
 import EditStaffPage from "./pages/EditStaffPage.jsx"
+import HomePage from "./pages/MainPage.jsx";
+import RegisterPage from './pages/RegisterPage'
 
-function PrivateRoute({ children, staffOnly, doctorOnly, adminOnly }) {
+function PrivateRoute({ children, staffOnly, doctorOnly }) {
     const { user, isAuthenticated } = useAuth()
 
     if (!isAuthenticated) {
@@ -36,9 +38,12 @@ function PrivateRoute({ children, staffOnly, doctorOnly, adminOnly }) {
 export default function App() {
     return (
         <Routes>
-            <Route index element={<Navigate to="/login" replace />} />
+
+            <Route path="/" element={<HomePage />} />
 
             <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/register" element={<RegisterPage />} />
 
             <Route path="/dashboard/patient/:id" element={<PrivateRoute staffOnly={false}><PatientDashboardPage/></PrivateRoute>}/>
 
@@ -60,7 +65,6 @@ export default function App() {
 
             <Route path="/staff/:id/edit" element={<PrivateRoute staffOnly={true}><EditStaffPage/></PrivateRoute>}/>
 
-            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     )
 }

@@ -27,14 +27,12 @@ public class StaffServlet extends HttpServlet {
 
         try {
             if (pathInfo == null || "/".equals(pathInfo)) {
-                // GET /api/staff
                 List<Staff> staffList = staffDAO.getAllStaff();
                 writeJson(resp, staffList);
             } else {
-                // GET /api/staff/{id}
-                String idStr = pathInfo.substring(1);            // "123"
+                String idStr = pathInfo.substring(1);
                 int id = Integer.parseInt(idStr);
-                Staff staff = staffDAO.getStaffById(id);         // метод в DAO!
+                Staff staff = staffDAO.getStaffById(id);
                 if (staff == null) {
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     writeJson(resp,
