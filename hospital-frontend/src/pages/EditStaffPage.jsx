@@ -36,7 +36,7 @@ export default function EditStaffPage() {
             <div className="patient-form-card">
                 <h2>Редагувати працівника #{id}</h2>
                 <form onSubmit={handleSubmit}>
-                    {['lastName','firstName','patronymic','position','phone','password'].map(name => (
+                    {['lastName','firstName','patronymic','position','phone'].map(name => (
                         <div className="field" key={name}>
                             <label>{name}:</label>
                             <input
